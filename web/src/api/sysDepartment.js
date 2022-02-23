@@ -95,3 +95,21 @@ export const getSysDepartmentList = (params) => {
     params
   })
 }
+
+// GetSysDepartmentTree 获取SysDepartment所有数据按树状排序
+// @Tags SysDepartment
+// @Summary 分页获取SysDepartment列表
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data query autocodeReq.SysDepartmentSearch true "分页获取SysDepartment列表"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /SysDp/getSysDepartmentTree [get]
+export const GetSysDepartmentTree = (params) => {
+  return service({
+    url: '/SysDp/getSysDepartmentTree',
+    method: 'get',
+    params
+  })
+}
+

@@ -87,7 +87,7 @@ func (SysDpService *SysDepartmentService)FillDepartmentChildren(treeMap map[int]
 }
 
 
-func (SysDpService *SysDepartmentService)GetDepartmentTree() (err error, departments []response.DepartmentTreeResponse) {
+func (SysDpService *SysDepartmentService)GetDepartmentTree() (departments []response.DepartmentTreeResponse,err error) {
 	err, treeMap := SysDpService.GetDepartmentTreeMap()
 	if err!=nil{
 		return
@@ -96,6 +96,6 @@ func (SysDpService *SysDepartmentService)GetDepartmentTree() (err error, departm
 	for i, _ := range departments{
 		err = SysDpService.FillDepartmentChildren(treeMap, &departments[i])
 	}
-	return err, departments
+	return departments, err
 }
 

@@ -23,5 +23,6 @@ func (s *SysDepartmentRouter) InitSysDepartmentRouter(Router *gin.RouterGroup) {
 	{
 		SysDpRouterWithoutRecord.GET("findSysDepartment", SysDpApi.FindSysDepartment)        // 根据ID获取SysDepartment
 		SysDpRouterWithoutRecord.GET("getSysDepartmentList", SysDpApi.GetSysDepartmentList)  // 获取SysDepartment列表
+		SysDpRouterWithoutRecord.GET("getSysDepartmentTree", SysDpApi.GetSysDepartmentTree) // 获取SysDepartmentTree树状列表
 	}
 }
