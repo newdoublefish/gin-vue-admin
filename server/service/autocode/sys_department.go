@@ -3,8 +3,9 @@ package autocode
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 )
 
 type SysDepartmentService struct {
@@ -61,3 +62,40 @@ func (SysDpService *SysDepartmentService)GetSysDepartmentInfoList(info autoCodeR
 	err = db.Limit(limit).Offset(offset).Find(&SysDps).Error
 	return err, SysDps, total
 }
+
+func (SysDpService *SysDepartmentService)GetDepartmentTreeMap() (err error, treeMap map[int][]response.DepartmentTreeResponse) {
+	var allDepartments []autocode.SysDepartment
+	treeMap = make(map[int][]response.DepartmentTreeResponse)
+	err = global.GVA_DB.Find(&allDepartments).Error
+	if err!=nil{
+		return err, treeMap
+	}
+	for _, v := range allDepartments{
+		treeMap[v.ParentId] = append(treeMap[v.ParentId], response.DepartmentTreeResponse{
+			SysDepartment: v,
+		})
+	}
+	return err, treeMap
+}
+
+func (SysDpService *SysDepartmentService)FillDepartmentChildren(treeMap map[int][]response.DepartmentTreeResponse, dr *response.DepartmentTreeResponse)(err error){
+	dr.Children = treeMap[int(dr.ID)]
+	for i, _ := range dr.Children{
+		err = SysDpService.FillDepartmentChildren(treeMap, &dr.Children[i])
+	}
+	return err
+}
+
+
+func (SysDpService *SysDepartmentService)GetDepartmentTree() (err error, departments []response.DepartmentTreeResponse) {
+	err, treeMap := SysDpService.GetDepartmentTreeMap()
+	if err!=nil{
+		return
+	}
+	departments = treeMap[0]
+	for i, _ := range departments{
+		err = SysDpService.FillDepartmentChildren(treeMap, &departments[i])
+	}
+	return err, departments
+}
+
