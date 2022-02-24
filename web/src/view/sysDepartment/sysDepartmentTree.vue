@@ -37,16 +37,24 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form ref="menuForm" :model="form" label-position="right" label-width="80px">
-        <el-form-item label="编号:">
+        <el-form-item label="组织编号:">
           <el-input v-model="form.code" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="部门名称:">
+        <el-form-item label="组织名称:">
           <el-input v-model="form.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="上级部门:">
-          <el-input v-model.number="form.parentId" clearable placeholder="请输入" />
+        <el-form-item label="父组织ID" style="width:30%">
+          <el-cascader
+            v-model="form.parentId"
+            style="width:100%"
+            :disabled="!isEdit"
+            :options="menuOption"
+            :props="{ checkStrictly: true,label:'title',value:'ID',disabled:'disabled',emitPath:false}"
+            :show-all-levels="false"
+            filterable
+          />
         </el-form-item>
-        <el-form-item label="描述:">
+        <el-form-item label="组织:">
           <el-input v-model="form.description" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
@@ -181,19 +189,20 @@ const enterDialog = async() => {
 }
 const menuOption = ref([
   {
-    ID: '0',
+    ID: 0,
     title: '根菜单'
   }
 ])
 const setOptions = () => {
   menuOption.value = [
     {
-      ID: '0',
+      ID: 0,
       title: '根目录'
     }
   ]
 
   setMenuOptions(tableData.value, menuOption.value, false)
+  console.log(menuOption.value)
 }
 
 const setMenuOptions = (menuData, optionsData, disabled) => {
@@ -203,7 +212,7 @@ const setMenuOptions = (menuData, optionsData, disabled) => {
           if (item.children && item.children.length) {
             const option = {
               title: item.name,
-              ID: String(item.ID),
+              ID: item.ID,
               disabled: disabled || item.ID === form.value.ID,
               children: []
             }
@@ -216,7 +225,7 @@ const setMenuOptions = (menuData, optionsData, disabled) => {
           } else {
             const option = {
               title: item.name,
-              ID: String(item.ID),
+              ID: item.ID,
               disabled: disabled || item.ID === form.value.ID
             }
             optionsData.push(option)
