@@ -8,31 +8,9 @@
       <!-- 由于此处菜单跟左侧列表一一对应所以不需要分页 pageSize默认999 -->
       <el-table :data="tableData" row-key="ID">
         <el-table-column align="left" label="ID" min-width="100" prop="ID" />
-        <el-table-column align="left" label="路由Name" show-overflow-tooltip min-width="160" prop="name" />
-        <el-table-column align="left" label="路由Path" show-overflow-tooltip min-width="160" prop="path" />
-        <el-table-column align="left" label="是否隐藏" min-width="100" prop="hidden">
-          <template #default="scope">
-            <span>{{ scope.row.hidden?"隐藏":"显示" }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="父节点" min-width="90" prop="parentId" />
-        <el-table-column align="left" label="排序" min-width="70" prop="sort" />
-        <el-table-column align="left" label="文件路径" min-width="360" prop="component" />
-        <el-table-column align="left" label="展示名称" min-width="120" prop="authorityName">
-          <template #default="scope">
-            <span>{{ scope.row.meta.title }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="图标" min-width="140" prop="authorityName">
-          <template #default="scope">
-            <div v-if="scope.row.meta.icon" class="icon-column">
-              <el-icon>
-                <component :is="scope.row.meta.icon" />
-              </el-icon>
-              <span>{{ scope.row.meta.icon }}</span>
-            </div>
-          </template>
-        </el-table-column>
+        <el-table-column align="left" label="名称" show-overflow-tooltip min-width="160" prop="name" />
+        <el-table-column align="left" label="编码" show-overflow-tooltip min-width="160" prop="code" />
+        <el-table-column align="left" label="描述" show-overflow-tooltip min-width="160" prop="description" />
         <el-table-column align="left" fixed="right" label="操作" width="300">
           <template #default="scope">
             <el-button
@@ -226,12 +204,14 @@
 
 <script setup>
 import {
-  updateBaseMenu,
-  getMenuList,
-  addBaseMenu,
-  deleteBaseMenu,
-  getBaseMenuById
-} from '@/api/menu'
+  createSysDepartment,
+  deleteSysDepartment,
+  // deleteSysDepartmentByIds,
+  updateSysDepartment,
+  findSysDepartment,
+  // getSysDepartmentList,
+  getSysDepartmentTree
+} from '@/api/sysDepartment'
 import icon from '@/view/superAdmin/menu/icon.vue'
 import warningBar from '@/components/warningBar/warningBar.vue'
 import { reactive, ref } from 'vue'
@@ -252,7 +232,7 @@ const tableData = ref([])
 const searchInfo = ref({})
 // 查询
 const getTableData = async() => {
-  const table = await getMenuList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getSysDepartmentTree({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   console.log(table)
   if (table.code === 0) {
     tableData.value = table.data.list
@@ -321,7 +301,7 @@ const deleteMenu = (ID) => {
     type: 'warning'
   })
     .then(async() => {
-      const res = await deleteBaseMenu({ ID })
+      const res = await deleteSysDepartment({ ID })
       if (res.code === 0) {
         ElMessage({
           type: 'success',
@@ -373,9 +353,9 @@ const enterDialog = async() => {
     if (valid) {
       let res
       if (isEdit.value) {
-        res = await updateBaseMenu(form.value)
+        res = await updateSysDepartment(form.value)
       } else {
-        res = await addBaseMenu(form.value)
+        res = await createSysDepartment(form.value)
       }
       if (res.code === 0) {
         ElMessage({
@@ -443,7 +423,7 @@ const addMenu = (id) => {
 // 修改菜单方法
 const editMenu = async(id) => {
   dialogTitle.value = '编辑菜单'
-  const res = await getBaseMenuById({ id })
+  const res = await findSysDepartment({ ID: id })
   form.value = res.data.menu
   isEdit.value = true
   setOptions()
