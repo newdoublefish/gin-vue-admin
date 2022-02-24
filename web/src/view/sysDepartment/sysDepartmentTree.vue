@@ -239,17 +239,17 @@ const setMenuOptions = (menuData, optionsData, disabled) => {
 }
 // 添加菜单方法，id为 0则为添加根菜单
 const isEdit = ref(false)
-const dialogTitle = ref('新增菜单')
+const dialogTitle = ref('新增组织')
 const addMenu = (id) => {
-  dialogTitle.value = '新增菜单'
-  form.value.parentId = String(id)
+  dialogTitle.value = '新增组织'
+  form.value.parentId = id
   isEdit.value = false
   setOptions()
   dialogFormVisible.value = true
 }
 // 修改菜单方法
 const editMenu = async(id) => {
-  dialogTitle.value = '编辑菜单'
+  dialogTitle.value = '编辑组织'
   const res = await findSysDepartment({ ID: id })
   form.value = res.data.reSysDp
   isEdit.value = true
