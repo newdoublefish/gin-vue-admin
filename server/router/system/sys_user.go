@@ -20,6 +20,7 @@ func (s *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 		userRouter.PUT("setUserInfo", baseApi.SetUserInfo)                // 设置用户信息
 		userRouter.POST("setUserAuthorities", baseApi.SetUserAuthorities) // 设置用户权限组
 		userRouter.POST("resetPassword", baseApi.ResetPassword)           // 设置用户权限组
+		userRouter.POST("setUserDepartments", baseApi.SetUserDepartments)           // 设置用户所属部门
 	}
 	{
 		userRouterWithoutRecord.POST("getUserList", baseApi.GetUserList) // 分页获取用户列表

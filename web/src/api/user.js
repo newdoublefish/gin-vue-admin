@@ -129,6 +129,22 @@ export const setUserAuthorities = (data) => {
 }
 
 // @Tags User
+// @Summary 设置用户所属组织
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body systemReq.SetUserDepartments true "用户UUID, 部门ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/setUserDepartments [post]
+export const setUserDepartments = (data) => {
+  return service({
+    url: '/user/setUserDepartments',
+    method: 'post',
+    data: data
+  })
+}
+
+// @Tags User
 // @Summary 获取用户信息
 // @Security ApiKeyAuth
 // @accept application/json

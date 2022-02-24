@@ -54,8 +54,8 @@
               collapse-tags
               :props="{ multiple:true,checkStrictly: true,label:'name',value:'id',disabled:'disabled',emitPath:false}"
               :clearable="false"
-              @visible-change="(flag)=>{changeAuthority(scope.row,flag)}"
-              @remove-tag="()=>{changeAuthority(scope.row,false)}"
+              @visible-change="(flag)=>{changeDepartments(scope.row,flag)}"
+              @remove-tag="()=>{changeDepartments(scope.row,false)}"
             />
           </template>
         </el-table-column>
@@ -143,6 +143,7 @@ const path = import.meta.env.VITE_BASE_API
 import {
   getUserList,
   setUserAuthorities,
+  setUserDepartments,
   register,
   deleteUser
 } from '@/api/user'
@@ -368,6 +369,20 @@ export default {
         })
         if (res.code === 0) {
           this.$message({ type: 'success', message: '角色设置成功' })
+        }
+      })
+    },
+    async changeDepartments(row, flag) {
+      if (flag) {
+        return
+      }
+      this.$nextTick(async() => {
+        const res = await setUserDepartments({
+          ID: row.ID,
+          departmentIds: row.departmentIds
+        })
+        if (res.code === 0) {
+          this.$message({ type: 'success', message: '组织设置成功' })
         }
       })
     },

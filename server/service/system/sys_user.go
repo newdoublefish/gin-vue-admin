@@ -40,7 +40,7 @@ func (userService *UserService) Register(u system.SysUser) (err error, userInter
 		return err
 	})
 
-	if err!=nil{
+	if err != nil {
 		return err, userInter
 	}
 
@@ -142,6 +142,26 @@ func (userService *UserService) SetUserAuthorities(id uint, authorityIds []strin
 			return TxErr
 		}
 		// 返回 nil 提交事务
+		return nil
+	})
+}
+
+func (userService *UserService) SetUserDepartments(id uint, departmentIds []uint) (err error) {
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		TxErr := tx.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+		if TxErr != nil {
+			return TxErr
+		}
+		userDepartments := []system.SysUserDepartment{}
+		for _, v := range departmentIds {
+			userDepartments = append(userDepartments, system.SysUserDepartment{
+				id, v,
+			})
+		}
+		TxErr = tx.Create(&userDepartments).Error
+		if TxErr != nil {
+			return TxErr
+		}
 		return nil
 	})
 }

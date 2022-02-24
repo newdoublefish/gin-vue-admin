@@ -244,6 +244,25 @@ func (b *BaseApi) SetUserAuthorities(c *gin.Context) {
 }
 
 // @Tags SysUser
+// @Summary 设置用户所属组织
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body systemReq.SetUserDepartments true "用户UUID, 部门ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/setUserDepartments [post]
+func (b *BaseApi) SetUserDepartments(c *gin.Context) {
+	var sua systemReq.SetUserDepartments
+	_ = c.ShouldBindJSON(&sua)
+	if err := userService.SetUserDepartments(sua.ID, sua.DepartmentIds); err != nil {
+		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+		response.FailWithMessage("修改失败", c)
+	} else {
+		response.OkWithMessage("修改成功", c)
+	}
+}
+
+// @Tags SysUser
 // @Summary 删除用户
 // @Security ApiKeyAuth
 // @accept application/json

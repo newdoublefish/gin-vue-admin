@@ -36,3 +36,8 @@ type SetUserAuthorities struct {
 	ID           uint
 	AuthorityIds []string `json:"authorityIds"` // 角色ID
 }
+
+type SetUserDepartments struct {
+	ID           uint
+	DepartmentIds []uint `json:"departmentIds"` // 角色ID
+}
