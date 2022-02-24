@@ -77,7 +77,11 @@ func (userService *UserService) GetUserInfoList(info request.PageInfo) (err erro
 	if err != nil {
 		return
 	}
-	err = db.Limit(limit).Offset(offset).Preload("Authorities").Preload("Authority").Find(&userList).Error
+	err = db.Limit(limit).Offset(offset).
+		Preload("Authorities").
+		Preload("Authority").
+		Preload("Departments").
+		Find(&userList).Error
 	return err, userList, total
 }
 
