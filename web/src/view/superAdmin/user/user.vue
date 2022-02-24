@@ -45,6 +45,20 @@
             />
           </template>
         </el-table-column>
+        <el-table-column align="left" label="用户组织" min-width="150">
+          <template #default="scope">
+            <el-cascader
+              v-model="scope.row.departmentIds"
+              :options="departmentOptions"
+              :show-all-levels="false"
+              collapse-tags
+              :props="{ multiple:true,checkStrictly: true,label:'name',value:'id',disabled:'disabled',emitPath:false}"
+              :clearable="false"
+              @visible-change="(flag)=>{changeAuthority(scope.row,flag)}"
+              @remove-tag="()=>{changeAuthority(scope.row,false)}"
+            />
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="操作" min-width="150">
           <template #default="scope">
             <el-popover :visible="scope.row.visible" placement="top" width="160">
@@ -187,6 +201,7 @@ export default {
   watch: {
     tableData() {
       this.setAuthorityIds()
+      this.setDepartmentIds()
     }
   },
   async created() {
@@ -230,6 +245,14 @@ export default {
         user.authorityIds = authorityIds
       })
     },
+    setDepartmentIds() {
+      this.tableData && this.tableData.forEach((user) => {
+        const departmentIds = user.departments && user.departments.map(i => {
+          return i.sysDepartmentId
+        })
+        user.departmentIds = departmentIds
+      })
+    },
     openHeaderChange() {
       this.$refs.chooseImg.open()
     },
@@ -238,8 +261,6 @@ export default {
       this.departmentOptions = []
       this.setAuthorityOptions(authData, this.authOptions)
       this.setDepartmentOptions(dpData, this.departmentOptions)
-      console.log(this.authOptions)
-      console.log(this.departmentOptions)
     },
     openEidt(row) {
       if (this.tableData.some(item => item.editFlag)) {
