@@ -21,14 +21,29 @@ import (
 type UserService struct{}
 
 func (userService *UserService) Register(u system.SysUser) (err error, userInter system.SysUser) {
-	var user system.SysUser
-	if !errors.Is(global.GVA_DB.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
-		return errors.New("用户名已注册"), userInter
+
+	err = global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var user system.SysUser
+		if !errors.Is(tx.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
+			return errors.New("用户名已注册")
+		}
+		// 否则 附加uuid 密码md5简单加密 注册
+		u.Password = utils.MD5V([]byte(u.Password))
+		u.UUID = uuid.NewV4()
+		err := tx.Create(&u).Error
+		//if len(u.Departments) > 0{
+		//	for i,_ := range u.Departments{
+		//		u.Departments[i].SysUserId = u.ID
+		//	}
+		//	err = tx.Create(&u.Departments).Error
+		//}
+		return err
+	})
+
+	if err!=nil{
+		return err, userInter
 	}
-	// 否则 附加uuid 密码md5简单加密 注册
-	u.Password = utils.MD5V([]byte(u.Password))
-	u.UUID = uuid.NewV4()
-	err = global.GVA_DB.Create(&u).Error
+
 	return err, u
 }
 
@@ -144,6 +159,10 @@ func (userService *UserService) DeleteUser(id float64) (err error) {
 		return err
 	}
 	err = global.GVA_DB.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	if err != nil {
+		return err
+	}
+	err = global.GVA_DB.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
 	return err
 }
 
