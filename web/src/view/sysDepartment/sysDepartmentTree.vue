@@ -54,8 +54,13 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="组织:">
-          <el-input v-model="form.description" clearable placeholder="请输入" />
+        <el-form-item label="描述:">
+          <el-input
+            v-model="form.description"
+            :rows="4"
+            type="textarea"
+            placeholder="请输入"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
