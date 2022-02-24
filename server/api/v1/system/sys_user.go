@@ -119,7 +119,15 @@ func (b *BaseApi) Register(c *gin.Context) {
 			AuthorityId: v,
 		})
 	}
-	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities}
+
+	var departments []system.SysUserDepartment
+	for _, v := range r.DepartmentIds {
+		departments = append(departments, system.SysUserDepartment{
+			SysDepartmentId: v,
+		})
+	}
+
+	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Departments: departments}
 	err, userReturn := userService.Register(*user)
 	if err != nil {
 		global.GVA_LOG.Error("注册失败!", zap.Error(err))

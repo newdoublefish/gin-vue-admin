@@ -89,8 +89,18 @@
             v-model="userInfo.authorityIds"
             style="width:100%"
             :options="authOptions"
-            :show-all-levels="false"
+            :show-all-levels="true"
             :props="{ multiple:true,checkStrictly: true,label:'authorityName',value:'authorityId',disabled:'disabled',emitPath:false}"
+            :clearable="false"
+          />
+        </el-form-item>
+        <el-form-item label="部门">
+          <el-cascader
+            v-model="userInfo.departmentIds"
+            style="width:100%"
+            :options="departmentOptions"
+            :show-all-levels="true"
+            :props="{ multiple:true,checkStrictly: true,label:'name',value:'id',disabled:'disabled',emitPath:false}"
             :clearable="false"
           />
         </el-form-item>
@@ -122,6 +132,9 @@ import {
   register,
   deleteUser
 } from '@/api/user'
+import {
+  getSysDepartmentTree
+} from '@/api/sysDepartment' //  此处请自行替换地址
 import { getAuthorityList } from '@/api/authority'
 import infoList from '@/mixins/infoList'
 import { mapGetters } from 'vuex'
@@ -138,6 +151,7 @@ export default {
       listApi: getUserList,
       path: path,
       authOptions: [],
+      departmentOptions: [],
       addUserDialog: false,
       backNickName: '',
       userInfo: {
@@ -146,7 +160,8 @@ export default {
         nickName: '',
         headerImg: '',
         authorityId: '',
-        authorityIds: []
+        authorityIds: [],
+        departmentIds: []
       },
       rules: {
         username: [
@@ -177,7 +192,8 @@ export default {
   async created() {
     await this.getTableData()
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
-    this.setOptions(res.data.list)
+    const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
+    this.setOptions(res.data.list, dpRes.data.list)
   },
   methods: {
     resetPassword(row) {
@@ -217,9 +233,13 @@ export default {
     openHeaderChange() {
       this.$refs.chooseImg.open()
     },
-    setOptions(authData) {
+    setOptions(authData, dpData) {
       this.authOptions = []
+      this.departmentOptions = []
       this.setAuthorityOptions(authData, this.authOptions)
+      this.setDepartmentOptions(dpData, this.departmentOptions)
+      console.log(this.authOptions)
+      console.log(this.departmentOptions)
     },
     openEidt(row) {
       if (this.tableData.some(item => item.editFlag)) {
@@ -244,6 +264,26 @@ export default {
       row.nickName = this.backNickName
       this.backNickName = ''
       row.editFlag = false
+    },
+    setDepartmentOptions(dpData, optionsData) {
+      dpData &&
+        dpData.forEach(item => {
+          if (item.children && item.children.length) {
+            const option = {
+              id: item.ID,
+              name: item.name,
+              children: []
+            }
+            this.setDepartmentOptions(item.children, option.children)
+            optionsData.push(option)
+          } else {
+            const option = {
+              id: item.ID,
+              name: item.name,
+            }
+            optionsData.push(option)
+          }
+        })
     },
     setAuthorityOptions(AuthorityData, optionsData) {
       AuthorityData &&
@@ -290,6 +330,7 @@ export default {
       this.$refs.userForm.resetFields()
       this.userInfo.headerImg = ''
       this.userInfo.authorityIds = []
+      this.userInfo.departmentIds = []
       this.addUserDialog = false
     },
     addUser() {
