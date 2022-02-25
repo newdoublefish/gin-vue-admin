@@ -18,7 +18,7 @@
     <warning-bar title="注：右上角头像下拉可切换角色" />
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button size="mini" type="primary" icon="plus" @click="addUser">新增用户</el-button>
+        <el-button size="mini" type="primary" icon="plus" @click="addUser()">新增用户</el-button>
       </div>
       <el-table :data="tableData">
         <el-table-column align="left" label="头像" min-width="50">
@@ -74,8 +74,9 @@
             />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="操作" min-width="150">
+        <el-table-column align="left" label="操作" min-width="200">
           <template #default="scope">
+            <el-button type="text" icon="magic-stick" size="mini" @click="editUserBasicInfo(scope.row)">编辑用户</el-button>
             <el-popover :visible="scope.row.visible" placement="top" width="160">
               <p>确定要删除此用户吗</p>
               <div style="text-align: right; margin-top: 8px;">
@@ -102,12 +103,12 @@
         />
       </div>
     </div>
-    <el-dialog v-model="addUserDialog" custom-class="user-dialog" title="新增用户">
+    <el-dialog v-model="addUserDialog" custom-class="user-dialog" :title="dialogTitle">
       <el-form ref="userForm" :rules="rules" :model="userInfo" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="userInfo.username" />
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="userInfo.userName" />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item v-if="dialogType === 'addUser'" label="密码" prop="password">
           <el-input v-model="userInfo.password" />
         </el-form-item>
         <el-form-item label="别名" prop="nickName">
@@ -178,6 +179,8 @@ export default {
   mixins: [infoList],
   data() {
     return {
+      dialogTitle: '新增Api',
+      dialogType: 'addUser',
       listApi: getUserList,
       path: path,
       authOptions: [],
@@ -194,7 +197,7 @@ export default {
         departmentIds: []
       },
       rules: {
-        username: [
+        userName: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 5, message: '最低5位字符', trigger: 'blur' }
         ],
@@ -207,6 +210,9 @@ export default {
         ],
         authorityId: [
           { required: true, message: '请选择用户角色', trigger: 'blur' }
+        ],
+        departmentId: [
+          { required: true, message: '请选择用户组织', trigger: 'blur' }
         ]
       }
     }
@@ -367,27 +373,60 @@ export default {
       }
     },
     async enterAddUserDialog() {
-      this.userInfo.authorityId = this.userInfo.authorityIds[0]
-      this.$refs.userForm.validate(async valid => {
-        if (valid) {
-          const res = await register(this.userInfo)
-          if (res.code === 0) {
-            this.$message({ type: 'success', message: '创建成功' })
+      if (this.dialogType === 'addUser') {
+        this.userInfo.authorityId = this.userInfo.authorityIds[0]
+        this.$refs.userForm.validate(async valid => {
+          if (valid) {
+            const res = await register(this.userInfo)
+            if (res.code === 0) {
+              this.$message({ type: 'success', message: '创建成功' })
+            }
+            await this.getTableData()
+            this.closeAddUserDialog()
           }
-          await this.getTableData()
-          this.closeAddUserDialog()
-        }
-      })
+        })
+      } else if (this.dialogType === 'edit') {
+        this.$message({ type: 'success', message: '更新成功' })
+        this.closeAddUserDialog()
+      }
     },
-    closeAddUserDialog() {
-      this.$refs.userForm.resetFields()
+    resetForm() {
+      this.userInfo.userName = ''
+      this.userInfo.password = ''
       this.userInfo.headerImg = ''
+      this.userInfo.nickName = ''
       this.userInfo.authorityIds = []
       this.userInfo.departmentIds = []
+    },
+    closeAddUserDialog() {
+      if (this.dialogType === 'addUser') {
+        this.$refs.userForm.resetFields()
+        this.resetForm()
+      }
       this.addUserDialog = false
     },
-    addUser() {
+    openDialog(type) {
+      switch (type) {
+        case 'addUser':
+          this.dialogTitle = '新增用户'
+          break
+        case 'edit':
+          this.dialogTitle = '编辑用户'
+          break
+        default:
+          break
+      }
+      this.dialogType = type
       this.addUserDialog = true
+    },
+    addUser() {
+      this.resetForm()
+      this.openDialog('addUser')
+    },
+    editUserBasicInfo(row) {
+      console.log(row)
+      this.userInfo = row
+      this.openDialog('edit')
     },
     async changeAuthority(row, flag) {
       if (flag) {

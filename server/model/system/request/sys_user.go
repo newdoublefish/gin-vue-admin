@@ -13,6 +13,14 @@ type Register struct {
 	DepartmentIds []uint `json:"departmentIds"`
 }
 
+// User register structure
+type UpdateUserBasicInfo struct {
+	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
+	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
+	AuthorityIds  []string `json:"authorityIds"`
+	DepartmentIds []uint `json:"departmentIds"`
+}
+
 // User login structure
 type Login struct {
 	Username  string `json:"username"`  // 用户名
