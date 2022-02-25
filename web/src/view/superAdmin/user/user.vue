@@ -4,9 +4,9 @@
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="用户组织">
           <el-cascader
-            v-model="searchInfo.departmentId"
+            v-model="searchInfo.department"
             :options="departmentOptions"
-            :props="{expandTrigger: 'hover',label:'name',value:'id'}"
+            :props="{checkStrictly: true, label:'name',value:'id'}"
           />
         </el-form-item>
         <el-form-item>
@@ -227,6 +227,19 @@ export default {
     this.setOptions(res.data.list, dpRes.data.list)
   },
   methods: {
+    onSubmit() {
+      if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
+        console.log(this.searchInfo.department.length)
+        if (this.searchInfo.department.length > 0) {
+          var last = this.searchInfo.department.pop()
+          this.searchInfo.departmentId = last
+        }
+      }
+
+      this.page = 1
+      this.pageSize = 10
+      this.getTableData()
+    },
     onReset() {
       this.searchInfo = {}
     },

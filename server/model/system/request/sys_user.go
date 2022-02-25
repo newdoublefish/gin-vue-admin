@@ -1,5 +1,7 @@
 package request
 
+import "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+
 // User register structure
 type Register struct {
 	Username      string   `json:"userName"`
@@ -40,4 +42,9 @@ type SetUserAuthorities struct {
 type SetUserDepartments struct {
 	ID           uint
 	DepartmentIds []uint `json:"departmentIds"` // 角色ID
+}
+
+type UserSearch struct {
+	request.PageInfo
+	DepartmentId uint `json:"departmentId"`
 }
