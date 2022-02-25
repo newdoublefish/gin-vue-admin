@@ -401,6 +401,7 @@ export default {
       }
     },
     resetForm() {
+      this.userInfo = {}
       this.userInfo.userName = ''
       this.userInfo.password = ''
       this.userInfo.headerImg = ''
