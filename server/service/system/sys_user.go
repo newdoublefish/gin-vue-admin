@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
+	"gorm.io/gorm/clause"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
@@ -121,6 +122,29 @@ func (userService *UserService) SetUserAuthority(id uint, uuid uuid.UUID, author
 	return err
 }
 
+func (userService *UserService) UpAuthorities(tx *gorm.DB, id uint, authorityIds []string) (err error) {
+	TxErr := tx.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	useAuthority := []system.SysUseAuthority{}
+	for _, v := range authorityIds {
+		useAuthority = append(useAuthority, system.SysUseAuthority{
+			id, v,
+		})
+	}
+	TxErr = tx.Create(&useAuthority).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	TxErr = tx.Where("id = ?", id).First(&system.SysUser{}).Update("authority_id", authorityIds[0]).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	// 返回 nil 提交事务
+	return nil
+}
+
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: SetUserAuthorities
 //@description: 设置一个用户的权限
@@ -129,46 +153,31 @@ func (userService *UserService) SetUserAuthority(id uint, uuid uuid.UUID, author
 
 func (userService *UserService) SetUserAuthorities(id uint, authorityIds []string) (err error) {
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-		TxErr := tx.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		useAuthority := []system.SysUseAuthority{}
-		for _, v := range authorityIds {
-			useAuthority = append(useAuthority, system.SysUseAuthority{
-				id, v,
-			})
-		}
-		TxErr = tx.Create(&useAuthority).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		TxErr = tx.Where("id = ?", id).First(&system.SysUser{}).Update("authority_id", authorityIds[0]).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		// 返回 nil 提交事务
-		return nil
+		return userService.UpAuthorities(tx, id, authorityIds)
 	})
+}
+
+func (userService *UserService) UpdateDepartments(tx *gorm.DB, id uint, departmentIds []uint) (err error) {
+	TxErr := tx.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	userDepartments := []system.SysUserDepartment{}
+	for _, v := range departmentIds {
+		userDepartments = append(userDepartments, system.SysUserDepartment{
+			id, v,
+		})
+	}
+	TxErr = tx.Create(&userDepartments).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	return nil
 }
 
 func (userService *UserService) SetUserDepartments(id uint, departmentIds []uint) (err error) {
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-		TxErr := tx.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		userDepartments := []system.SysUserDepartment{}
-		for _, v := range departmentIds {
-			userDepartments = append(userDepartments, system.SysUserDepartment{
-				id, v,
-			})
-		}
-		TxErr = tx.Create(&userDepartments).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		return nil
+		return userService.UpdateDepartments(tx, id, departmentIds)
 	})
 }
 
@@ -250,4 +259,32 @@ func (userService *UserService) FindUserByUuid(uuid string) (err error, user *sy
 func (userService *UserService) ResetPassword(ID uint) (err error) {
 	err = global.GVA_DB.Model(&system.SysUser{}).Where("id = ?", ID).Update("password", utils.MD5V([]byte("123456"))).Error
 	return err
+}
+
+func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo) (err error) {
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		// 加锁
+		var user system.SysUser
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", r.ID).First(&user).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Model(&user).Updates(system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg}).Error
+		if err != nil {
+			return err
+		}
+
+		err = userService.UpAuthorities(tx, r.ID, r.AuthorityIds)
+		if err != nil {
+			return err
+		}
+
+		err = userService.UpdateDepartments(tx, r.ID, r.DepartmentIds)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

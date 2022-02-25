@@ -138,6 +138,24 @@ func (b *BaseApi) Register(c *gin.Context) {
 }
 
 // @Tags SysUser
+// @Summary 更新用户基本信息
+// @Produce  application/json
+// @Param data body systemReq.UpdateUserBasicInfo true "用户名, 昵称, 密码, 角色ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"注册成功"}"
+// @Router /user/updateBasicInfo [post]
+func (b *BaseApi) UpdateBasicInfo(c *gin.Context) {
+	var r systemReq.UpdateUserBasicInfo
+	//TODO: 参数检查
+	_ = c.ShouldBindJSON(&r)
+	if err := userService.UpdateBasicInfo(r); err != nil {
+		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+		response.FailWithMessage("修改失败", c)
+	} else {
+		response.OkWithMessage("修改成功", c)
+	}
+}
+
+// @Tags SysUser
 // @Summary 用户修改密码
 // @Security ApiKeyAuth
 // @Produce  application/json

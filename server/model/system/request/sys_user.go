@@ -15,6 +15,7 @@ type Register struct {
 
 // User register structure
 type UpdateUserBasicInfo struct {
+	ID           uint
 	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
 	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
 	AuthorityIds  []string `json:"authorityIds"`
