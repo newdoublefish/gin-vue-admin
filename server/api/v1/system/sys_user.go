@@ -119,13 +119,39 @@ func (b *BaseApi) Register(c *gin.Context) {
 			AuthorityId: v,
 		})
 	}
-	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities}
+
+	var departments []system.SysUserDepartment
+	for _, v := range r.DepartmentIds {
+		departments = append(departments, system.SysUserDepartment{
+			SysDepartmentId: v,
+		})
+	}
+
+	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Departments: departments}
 	err, userReturn := userService.Register(*user)
 	if err != nil {
 		global.GVA_LOG.Error("注册失败!", zap.Error(err))
 		response.FailWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册失败", c)
 	} else {
 		response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
+	}
+}
+
+// @Tags SysUser
+// @Summary 更新用户基本信息
+// @Produce  application/json
+// @Param data body systemReq.UpdateUserBasicInfo true "用户名, 昵称, 密码, 角色ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"注册成功"}"
+// @Router /user/updateBasicInfo [post]
+func (b *BaseApi) UpdateBasicInfo(c *gin.Context) {
+	var r systemReq.UpdateUserBasicInfo
+	//TODO: 参数检查
+	_ = c.ShouldBindJSON(&r)
+	if err := userService.UpdateBasicInfo(r); err != nil {
+		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+		response.FailWithMessage("修改失败", c)
+	} else {
+		response.OkWithMessage("修改成功", c)
 	}
 }
 
@@ -161,21 +187,21 @@ func (b *BaseApi) ChangePassword(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /user/getUserList [post]
 func (b *BaseApi) GetUserList(c *gin.Context) {
-	var pageInfo request.PageInfo
-	_ = c.ShouldBindJSON(&pageInfo)
-	if err := utils.Verify(pageInfo, utils.PageInfoVerify); err != nil {
+	var searchInfo systemReq.UserSearch
+	_ = c.ShouldBindJSON(&searchInfo)
+	if err := utils.Verify(searchInfo.PageInfo, utils.PageInfoVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err, list, total := userService.GetUserInfoList(pageInfo); err != nil {
+	if err, list, total := userService.GetUserInfoList(searchInfo); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {
 		response.OkWithDetailed(response.PageResult{
 			List:     list,
 			Total:    total,
-			Page:     pageInfo.Page,
-			PageSize: pageInfo.PageSize,
+			Page:     searchInfo.PageInfo.Page,
+			PageSize: searchInfo.PageInfo.PageSize,
 		}, "获取成功", c)
 	}
 }
@@ -228,6 +254,25 @@ func (b *BaseApi) SetUserAuthorities(c *gin.Context) {
 	var sua systemReq.SetUserAuthorities
 	_ = c.ShouldBindJSON(&sua)
 	if err := userService.SetUserAuthorities(sua.ID, sua.AuthorityIds); err != nil {
+		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+		response.FailWithMessage("修改失败", c)
+	} else {
+		response.OkWithMessage("修改成功", c)
+	}
+}
+
+// @Tags SysUser
+// @Summary 设置用户所属组织
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body systemReq.SetUserDepartments true "用户UUID, 部门ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/setUserDepartments [post]
+func (b *BaseApi) SetUserDepartments(c *gin.Context) {
+	var sua systemReq.SetUserDepartments
+	_ = c.ShouldBindJSON(&sua)
+	if err := userService.SetUserDepartments(sua.ID, sua.DepartmentIds); err != nil {
 		global.GVA_LOG.Error("修改失败!", zap.Error(err))
 		response.FailWithMessage("修改失败", c)
 	} else {

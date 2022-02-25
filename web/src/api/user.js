@@ -112,6 +112,22 @@ export const setUserInfo = (data) => {
   })
 }
 
+// @Tags SysUser
+// @Summary 升级用户基本信息
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body model.SysUser true "设置用户信息"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/updateBasicInfo [put]
+export const updateBasicInfo = (data) => {
+  return service({
+    url: '/user/updateBasicInfo',
+    method: 'put',
+    data: data
+  })
+}
+
 // @Tags User
 // @Summary 设置用户权限
 // @Security ApiKeyAuth
@@ -123,6 +139,22 @@ export const setUserInfo = (data) => {
 export const setUserAuthorities = (data) => {
   return service({
     url: '/user/setUserAuthorities',
+    method: 'post',
+    data: data
+  })
+}
+
+// @Tags User
+// @Summary 设置用户所属组织
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body systemReq.SetUserDepartments true "用户UUID, 部门ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/setUserDepartments [post]
+export const setUserDepartments = (data) => {
+  return service({
+    url: '/user/setUserDepartments',
     method: 'post',
     data: data
   })

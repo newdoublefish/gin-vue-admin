@@ -1,11 +1,14 @@
 package autocode
 
 import (
+	"errors"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	model "github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	"gorm.io/gorm"
 )
 
 type SysDepartmentService struct {
@@ -21,8 +24,16 @@ func (SysDpService *SysDepartmentService) CreateSysDepartment(SysDp autocode.Sys
 // DeleteSysDepartment 删除SysDepartment记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (SysDpService *SysDepartmentService)DeleteSysDepartment(SysDp autocode.SysDepartment) (err error) {
-	err = global.GVA_DB.Delete(&SysDp).Error
-	return err
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var sysUserDp model.SysUserDepartment
+		err := tx.Where("sys_department_id = ?", SysDp.ID).First(&sysUserDp).Error
+		if err == nil{
+			return errors.New("不能刪除,该组织已经分配员工！")
+		}
+		err = tx.Delete(&SysDp).Error
+		return err
+	})
+
 }
 
 // DeleteSysDepartmentByIds 批量删除SysDepartment记录

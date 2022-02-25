@@ -3,9 +3,10 @@ package system
 import (
 	"errors"
 	"fmt"
+	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
+	"gorm.io/gorm/clause"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	uuid "github.com/satori/go.uuid"
@@ -21,14 +22,29 @@ import (
 type UserService struct{}
 
 func (userService *UserService) Register(u system.SysUser) (err error, userInter system.SysUser) {
-	var user system.SysUser
-	if !errors.Is(global.GVA_DB.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
-		return errors.New("用户名已注册"), userInter
+
+	err = global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var user system.SysUser
+		if !errors.Is(tx.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
+			return errors.New("用户名已注册")
+		}
+		// 否则 附加uuid 密码md5简单加密 注册
+		u.Password = utils.MD5V([]byte(u.Password))
+		u.UUID = uuid.NewV4()
+		err := tx.Create(&u).Error
+		//if len(u.Departments) > 0{
+		//	for i,_ := range u.Departments{
+		//		u.Departments[i].SysUserId = u.ID
+		//	}
+		//	err = tx.Create(&u.Departments).Error
+		//}
+		return err
+	})
+
+	if err != nil {
+		return err, userInter
 	}
-	// 否则 附加uuid 密码md5简单加密 注册
-	u.Password = utils.MD5V([]byte(u.Password))
-	u.UUID = uuid.NewV4()
-	err = global.GVA_DB.Create(&u).Error
+
 	return err, u
 }
 
@@ -68,7 +84,7 @@ func (userService *UserService) ChangePassword(u *system.SysUser, newPassword st
 //@param: info request.PageInfo
 //@return: err error, list interface{}, total int64
 
-func (userService *UserService) GetUserInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
+func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&system.SysUser{})
@@ -77,7 +93,17 @@ func (userService *UserService) GetUserInfoList(info request.PageInfo) (err erro
 	if err != nil {
 		return
 	}
-	err = db.Limit(limit).Offset(offset).Preload("Authorities").Preload("Authority").Find(&userList).Error
+	db = db.Limit(limit).Offset(offset).
+		Preload("Authorities").
+		Preload("Authority")
+	//if info.DepartmentId != 0{
+	//	db = db.Preload("Departments", "sys_department_id = ?", info.DepartmentId)
+	//}else{
+	//	db = db.Preload("Departments")
+	//}
+	//TODO: 搜索逻辑
+	db = db.Preload("Departments")
+	err = db.Find(&userList).Error
 	return err, userList, total
 }
 
@@ -96,6 +122,29 @@ func (userService *UserService) SetUserAuthority(id uint, uuid uuid.UUID, author
 	return err
 }
 
+func (userService *UserService) UpAuthorities(tx *gorm.DB, id uint, authorityIds []string) (err error) {
+	TxErr := tx.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	useAuthority := []system.SysUseAuthority{}
+	for _, v := range authorityIds {
+		useAuthority = append(useAuthority, system.SysUseAuthority{
+			id, v,
+		})
+	}
+	TxErr = tx.Create(&useAuthority).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	TxErr = tx.Where("id = ?", id).First(&system.SysUser{}).Update("authority_id", authorityIds[0]).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	// 返回 nil 提交事务
+	return nil
+}
+
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: SetUserAuthorities
 //@description: 设置一个用户的权限
@@ -104,26 +153,31 @@ func (userService *UserService) SetUserAuthority(id uint, uuid uuid.UUID, author
 
 func (userService *UserService) SetUserAuthorities(id uint, authorityIds []string) (err error) {
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-		TxErr := tx.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		useAuthority := []system.SysUseAuthority{}
-		for _, v := range authorityIds {
-			useAuthority = append(useAuthority, system.SysUseAuthority{
-				id, v,
-			})
-		}
-		TxErr = tx.Create(&useAuthority).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		TxErr = tx.Where("id = ?", id).First(&system.SysUser{}).Update("authority_id", authorityIds[0]).Error
-		if TxErr != nil {
-			return TxErr
-		}
-		// 返回 nil 提交事务
-		return nil
+		return userService.UpAuthorities(tx, id, authorityIds)
+	})
+}
+
+func (userService *UserService) UpdateDepartments(tx *gorm.DB, id uint, departmentIds []uint) (err error) {
+	TxErr := tx.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	userDepartments := []system.SysUserDepartment{}
+	for _, v := range departmentIds {
+		userDepartments = append(userDepartments, system.SysUserDepartment{
+			id, v,
+		})
+	}
+	TxErr = tx.Create(&userDepartments).Error
+	if TxErr != nil {
+		return TxErr
+	}
+	return nil
+}
+
+func (userService *UserService) SetUserDepartments(id uint, departmentIds []uint) (err error) {
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		return userService.UpdateDepartments(tx, id, departmentIds)
 	})
 }
 
@@ -140,6 +194,10 @@ func (userService *UserService) DeleteUser(id float64) (err error) {
 		return err
 	}
 	err = global.GVA_DB.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	if err != nil {
+		return err
+	}
+	err = global.GVA_DB.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
 	return err
 }
 
@@ -201,4 +259,32 @@ func (userService *UserService) FindUserByUuid(uuid string) (err error, user *sy
 func (userService *UserService) ResetPassword(ID uint) (err error) {
 	err = global.GVA_DB.Model(&system.SysUser{}).Where("id = ?", ID).Update("password", utils.MD5V([]byte("123456"))).Error
 	return err
+}
+
+func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo) (err error) {
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		// 加锁
+		var user system.SysUser
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", r.ID).First(&user).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Model(&user).Updates(system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg}).Error
+		if err != nil {
+			return err
+		}
+
+		err = userService.UpAuthorities(tx, r.ID, r.AuthorityIds)
+		if err != nil {
+			return err
+		}
+
+		err = userService.UpdateDepartments(tx, r.ID, r.DepartmentIds)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

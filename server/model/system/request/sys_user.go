@@ -1,13 +1,25 @@
 package request
 
+import "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+
 // User register structure
 type Register struct {
-	Username     string   `json:"userName"`
-	Password     string   `json:"passWord"`
-	NickName     string   `json:"nickName" gorm:"default:'QMPlusUser'"`
-	HeaderImg    string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
-	AuthorityId  string   `json:"authorityId" gorm:"default:888"`
-	AuthorityIds []string `json:"authorityIds"`
+	Username      string   `json:"userName"`
+	Password      string   `json:"passWord"`
+	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
+	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
+	AuthorityId   string   `json:"authorityId" gorm:"default:888"`
+	AuthorityIds  []string `json:"authorityIds"`
+	DepartmentIds []uint `json:"departmentIds"`
+}
+
+// User register structure
+type UpdateUserBasicInfo struct {
+	ID           uint
+	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
+	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
+	AuthorityIds  []string `json:"authorityIds"`
+	DepartmentIds []uint `json:"departmentIds"`
 }
 
 // User login structure
@@ -34,4 +46,14 @@ type SetUserAuth struct {
 type SetUserAuthorities struct {
 	ID           uint
 	AuthorityIds []string `json:"authorityIds"` // 角色ID
+}
+
+type SetUserDepartments struct {
+	ID           uint
+	DepartmentIds []uint `json:"departmentIds"` // 角色ID
+}
+
+type UserSearch struct {
+	request.PageInfo
+	DepartmentId uint `json:"departmentId"`
 }

@@ -1,9 +1,24 @@
 <template>
   <div>
+    <div class="gva-search-box">
+      <el-form ref="searchForm" :inline="true" :model="searchInfo">
+        <el-form-item label="用户组织">
+          <el-cascader
+            v-model="searchInfo.department"
+            :options="departmentOptions"
+            :props="{checkStrictly: true, label:'name',value:'id'}"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
+          <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
     <warning-bar title="注：右上角头像下拉可切换角色" />
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button size="mini" type="primary" icon="plus" @click="addUser">新增用户</el-button>
+        <el-button size="mini" type="primary" icon="plus" @click="addUser()">新增用户</el-button>
       </div>
       <el-table :data="tableData">
         <el-table-column align="left" label="头像" min-width="50">
@@ -45,8 +60,23 @@
             />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="操作" min-width="150">
+        <el-table-column align="left" label="用户组织" min-width="150">
           <template #default="scope">
+            <el-cascader
+              v-model="scope.row.departmentIds"
+              :options="departmentOptions"
+              :show-all-levels="false"
+              collapse-tags
+              :props="{ multiple:true,checkStrictly: true,label:'name',value:'id',disabled:'disabled',emitPath:false}"
+              :clearable="false"
+              @visible-change="(flag)=>{changeDepartments(scope.row,flag)}"
+              @remove-tag="()=>{changeDepartments(scope.row,false)}"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="操作" min-width="200">
+          <template #default="scope">
+            <el-button type="text" icon="magic-stick" size="mini" @click="editUserBasicInfo(scope.row)">编辑用户</el-button>
             <el-popover :visible="scope.row.visible" placement="top" width="160">
               <p>确定要删除此用户吗</p>
               <div style="text-align: right; margin-top: 8px;">
@@ -73,12 +103,12 @@
         />
       </div>
     </div>
-    <el-dialog v-model="addUserDialog" custom-class="user-dialog" title="新增用户">
+    <el-dialog v-model="addUserDialog" custom-class="user-dialog" :title="dialogTitle">
       <el-form ref="userForm" :rules="rules" :model="userInfo" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="userInfo.username" />
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="userInfo.userName" :disabled="dialogType === 'edit'" />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item v-if="dialogType === 'addUser'" label="密码" prop="password">
           <el-input v-model="userInfo.password" />
         </el-form-item>
         <el-form-item label="别名" prop="nickName">
@@ -89,8 +119,18 @@
             v-model="userInfo.authorityIds"
             style="width:100%"
             :options="authOptions"
-            :show-all-levels="false"
+            :show-all-levels="true"
             :props="{ multiple:true,checkStrictly: true,label:'authorityName',value:'authorityId',disabled:'disabled',emitPath:false}"
+            :clearable="false"
+          />
+        </el-form-item>
+        <el-form-item label="部门">
+          <el-cascader
+            v-model="userInfo.departmentIds"
+            style="width:100%"
+            :options="departmentOptions"
+            :show-all-levels="true"
+            :props="{ multiple:true,checkStrictly: true,label:'name',value:'id',disabled:'disabled',emitPath:false}"
             :clearable="false"
           />
         </el-form-item>
@@ -119,9 +159,14 @@ const path = import.meta.env.VITE_BASE_API
 import {
   getUserList,
   setUserAuthorities,
+  setUserDepartments,
+  updateBasicInfo,
   register,
   deleteUser
 } from '@/api/user'
+import {
+  getSysDepartmentTree
+} from '@/api/sysDepartment' //  此处请自行替换地址
 import { getAuthorityList } from '@/api/authority'
 import infoList from '@/mixins/infoList'
 import { mapGetters } from 'vuex'
@@ -135,9 +180,12 @@ export default {
   mixins: [infoList],
   data() {
     return {
+      dialogTitle: '新增Api',
+      dialogType: 'addUser',
       listApi: getUserList,
       path: path,
       authOptions: [],
+      departmentOptions: [],
       addUserDialog: false,
       backNickName: '',
       userInfo: {
@@ -146,10 +194,11 @@ export default {
         nickName: '',
         headerImg: '',
         authorityId: '',
-        authorityIds: []
+        authorityIds: [],
+        departmentIds: []
       },
       rules: {
-        username: [
+        userName: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 5, message: '最低5位字符', trigger: 'blur' }
         ],
@@ -162,6 +211,9 @@ export default {
         ],
         authorityId: [
           { required: true, message: '请选择用户角色', trigger: 'blur' }
+        ],
+        departmentId: [
+          { required: true, message: '请选择用户组织', trigger: 'blur' }
         ]
       }
     }
@@ -172,14 +224,32 @@ export default {
   watch: {
     tableData() {
       this.setAuthorityIds()
+      this.setDepartmentIds()
     }
   },
   async created() {
     await this.getTableData()
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
-    this.setOptions(res.data.list)
+    const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
+    this.setOptions(res.data.list, dpRes.data.list)
   },
   methods: {
+    onSubmit() {
+      if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
+        console.log(this.searchInfo.department.length)
+        if (this.searchInfo.department.length > 0) {
+          var last = this.searchInfo.department.pop()
+          this.searchInfo.departmentId = last
+        }
+      }
+
+      this.page = 1
+      this.pageSize = 10
+      this.getTableData()
+    },
+    onReset() {
+      this.searchInfo = {}
+    },
     resetPassword(row) {
       this.$confirm(
         '是否将此用户密码重置为123456?',
@@ -214,12 +284,22 @@ export default {
         user.authorityIds = authorityIds
       })
     },
+    setDepartmentIds() {
+      this.tableData && this.tableData.forEach((user) => {
+        const departmentIds = user.departments && user.departments.map(i => {
+          return i.sysDepartmentId
+        })
+        user.departmentIds = departmentIds
+      })
+    },
     openHeaderChange() {
       this.$refs.chooseImg.open()
     },
-    setOptions(authData) {
+    setOptions(authData, dpData) {
       this.authOptions = []
+      this.departmentOptions = []
       this.setAuthorityOptions(authData, this.authOptions)
+      this.setDepartmentOptions(dpData, this.departmentOptions)
     },
     openEidt(row) {
       if (this.tableData.some(item => item.editFlag)) {
@@ -244,6 +324,26 @@ export default {
       row.nickName = this.backNickName
       this.backNickName = ''
       row.editFlag = false
+    },
+    setDepartmentOptions(dpData, optionsData) {
+      dpData &&
+        dpData.forEach(item => {
+          if (item.children && item.children.length) {
+            const option = {
+              id: item.ID,
+              name: item.name,
+              children: []
+            }
+            this.setDepartmentOptions(item.children, option.children)
+            optionsData.push(option)
+          } else {
+            const option = {
+              id: item.ID,
+              name: item.name,
+            }
+            optionsData.push(option)
+          }
+        })
     },
     setAuthorityOptions(AuthorityData, optionsData) {
       AuthorityData &&
@@ -274,26 +374,70 @@ export default {
       }
     },
     async enterAddUserDialog() {
-      this.userInfo.authorityId = this.userInfo.authorityIds[0]
-      this.$refs.userForm.validate(async valid => {
-        if (valid) {
-          const res = await register(this.userInfo)
-          if (res.code === 0) {
-            this.$message({ type: 'success', message: '创建成功' })
+      if (this.dialogType === 'addUser') {
+        this.userInfo.authorityId = this.userInfo.authorityIds[0]
+        this.$refs.userForm.validate(async valid => {
+          if (valid) {
+            const res = await register(this.userInfo)
+            if (res.code === 0) {
+              this.$message({ type: 'success', message: '创建成功' })
+            }
+            await this.getTableData()
+            this.closeAddUserDialog()
           }
-          await this.getTableData()
-          this.closeAddUserDialog()
-        }
-      })
+        })
+      } else if (this.dialogType === 'edit') {
+        this.$refs.userForm.validate(async valid => {
+          if (valid) {
+            const res = await updateBasicInfo(this.userInfo)
+            if (res.code === 0) {
+              this.$message({ type: 'success', message: '更新成功' })
+            }
+            await this.getTableData()
+            this.closeAddUserDialog()
+          }
+        })
+        this.closeAddUserDialog()
+      }
+    },
+    resetForm() {
+      this.userInfo = {}
+      this.userInfo.userName = ''
+      this.userInfo.password = ''
+      this.userInfo.headerImg = ''
+      this.userInfo.nickName = ''
+      this.userInfo.authorityIds = []
+      this.userInfo.departmentIds = []
     },
     closeAddUserDialog() {
-      this.$refs.userForm.resetFields()
-      this.userInfo.headerImg = ''
-      this.userInfo.authorityIds = []
+      if (this.dialogType === 'addUser') {
+        this.$refs.userForm.resetFields()
+        this.resetForm()
+      }
       this.addUserDialog = false
     },
-    addUser() {
+    openDialog(type) {
+      switch (type) {
+        case 'addUser':
+          this.dialogTitle = '新增用户'
+          break
+        case 'edit':
+          this.dialogTitle = '编辑用户'
+          break
+        default:
+          break
+      }
+      this.dialogType = type
       this.addUserDialog = true
+    },
+    addUser() {
+      this.resetForm()
+      this.openDialog('addUser')
+    },
+    editUserBasicInfo(row) {
+      console.log(row)
+      this.userInfo = row
+      this.openDialog('edit')
     },
     async changeAuthority(row, flag) {
       if (flag) {
@@ -306,6 +450,20 @@ export default {
         })
         if (res.code === 0) {
           this.$message({ type: 'success', message: '角色设置成功' })
+        }
+      })
+    },
+    async changeDepartments(row, flag) {
+      if (flag) {
+        return
+      }
+      this.$nextTick(async() => {
+        const res = await setUserDepartments({
+          ID: row.ID,
+          departmentIds: row.departmentIds
+        })
+        if (res.code === 0) {
+          this.$message({ type: 'success', message: '组织设置成功' })
         }
       })
     },
