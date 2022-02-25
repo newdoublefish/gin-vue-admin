@@ -92,11 +92,17 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	if err != nil {
 		return
 	}
-	err = db.Limit(limit).Offset(offset).
+	db = db.Limit(limit).Offset(offset).
 		Preload("Authorities").
-		Preload("Authority").
-		Preload("Departments").
-		Find(&userList).Error
+		Preload("Authority")
+	//if info.DepartmentId != 0{
+	//	db = db.Preload("Departments", "sys_department_id = ?", info.DepartmentId)
+	//}else{
+	//	db = db.Preload("Departments")
+	//}
+	//TODO: 搜索逻辑
+	db = db.Preload("Departments")
+	err = db.Find(&userList).Error
 	return err, userList, total
 }
 
