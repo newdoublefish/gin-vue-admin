@@ -10,16 +10,18 @@ type Register struct {
 	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
 	AuthorityId   string   `json:"authorityId" gorm:"default:888"`
 	AuthorityIds  []string `json:"authorityIds"`
-	DepartmentIds []uint `json:"departmentIds"`
+	DepartmentIds []uint   `json:"departmentIds"`
+	PositionId    uint     `json:"positionId"`
 }
 
 // User register structure
 type UpdateUserBasicInfo struct {
-	ID           uint
+	ID            uint
+	PositionId    uint     `json:"positionId"`
 	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
 	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
 	AuthorityIds  []string `json:"authorityIds"`
-	DepartmentIds []uint `json:"departmentIds"`
+	DepartmentIds []uint   `json:"departmentIds"`
 }
 
 // User login structure
@@ -49,7 +51,7 @@ type SetUserAuthorities struct {
 }
 
 type SetUserDepartments struct {
-	ID           uint
+	ID            uint
 	DepartmentIds []uint `json:"departmentIds"` // 角色ID
 }
 

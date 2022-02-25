@@ -134,6 +134,16 @@
             :clearable="false"
           />
         </el-form-item>
+        <el-form-item label="用户岗位">
+          <el-select v-model="userInfo.positionId" clearable placeholder="Select">
+            <el-option
+              v-for="p in positions"
+              :key="p.ID"
+              :label="p.name"
+              :value="p.ID"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="头像" label-width="80px">
           <div style="display:inline-block" @click="openHeaderChange">
             <img v-if="userInfo.headerImg" class="header-img-box" :src="(userInfo.headerImg && userInfo.headerImg.slice(0, 4) !== 'http')?path+userInfo.headerImg:userInfo.headerImg">
@@ -156,6 +166,9 @@
 <script>
 // 获取列表内容封装在mixins内部  getTableData方法 初始化已封装完成
 const path = import.meta.env.VITE_BASE_API
+import {
+  getAutoPositionList
+} from '@/api/autoPosition' //  此处请自行替换地址
 import {
   getUserList,
   setUserAuthorities,
@@ -186,6 +199,7 @@ export default {
       path: path,
       authOptions: [],
       departmentOptions: [],
+      positions: [],
       addUserDialog: false,
       backNickName: '',
       userInfo: {
@@ -194,6 +208,7 @@ export default {
         nickName: '',
         headerImg: '',
         authorityId: '',
+        positionId: undefined,
         authorityIds: [],
         departmentIds: []
       },
@@ -232,6 +247,10 @@ export default {
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
     const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list, dpRes.data.list)
+    const positionRes = await getAutoPositionList({ page: 1, pageSize: 999 })
+    if (positionRes.code === 0) {
+      this.positions = positionRes.data.list
+    }
   },
   methods: {
     onSubmit() {
@@ -406,6 +425,7 @@ export default {
       this.userInfo.password = ''
       this.userInfo.headerImg = ''
       this.userInfo.nickName = ''
+      this.userInfo.positionId = undefined
       this.userInfo.authorityIds = []
       this.userInfo.departmentIds = []
     },

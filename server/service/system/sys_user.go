@@ -103,6 +103,7 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	//}
 	//TODO: 搜索逻辑
 	db = db.Preload("Departments")
+	db = db.Preload("Position")
 	err = db.Find(&userList).Error
 	return err, userList, total
 }
