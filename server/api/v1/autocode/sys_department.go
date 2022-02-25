@@ -1,6 +1,7 @@
 package autocode
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
@@ -50,7 +51,7 @@ func (SysDpApi *SysDepartmentApi) DeleteSysDepartment(c *gin.Context) {
 	_ = c.ShouldBindJSON(&SysDp)
 	if err := SysDpService.DeleteSysDepartment(SysDp); err != nil {
 		global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败", c)
+		response.FailWithMessage(fmt.Sprintf("删除失败:%s", err.Error()), c)
 	} else {
 		response.OkWithMessage("删除成功", c)
 	}
