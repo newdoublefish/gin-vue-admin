@@ -106,7 +106,7 @@
     <el-dialog v-model="addUserDialog" custom-class="user-dialog" :title="dialogTitle">
       <el-form ref="userForm" :rules="rules" :model="userInfo" label-width="80px">
         <el-form-item label="用户名" prop="userName">
-          <el-input v-model="userInfo.userName" />
+          <el-input v-model="userInfo.userName" :disabled="dialogType === 'edit'" />
         </el-form-item>
         <el-form-item v-if="dialogType === 'addUser'" label="密码" prop="password">
           <el-input v-model="userInfo.password" />
@@ -160,6 +160,7 @@ import {
   getUserList,
   setUserAuthorities,
   setUserDepartments,
+  updateBasicInfo,
   register,
   deleteUser
 } from '@/api/user'
@@ -386,7 +387,16 @@ export default {
           }
         })
       } else if (this.dialogType === 'edit') {
-        this.$message({ type: 'success', message: '更新成功' })
+        this.$refs.userForm.validate(async valid => {
+          if (valid) {
+            const res = await updateBasicInfo(this.userInfo)
+            if (res.code === 0) {
+              this.$message({ type: 'success', message: '更新成功' })
+            }
+            await this.getTableData()
+            this.closeAddUserDialog()
+          }
+        })
         this.closeAddUserDialog()
       }
     },
