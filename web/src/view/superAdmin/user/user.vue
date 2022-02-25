@@ -74,6 +74,11 @@
             />
           </template>
         </el-table-column>
+        <el-table-column align="left" label="岗位" min-width="150">
+          <template #default="scope">
+            {{ scope.row.position.name }}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="操作" min-width="200">
           <template #default="scope">
             <el-button type="text" icon="magic-stick" size="mini" @click="editUserBasicInfo(scope.row)">编辑用户</el-button>
@@ -244,6 +249,7 @@ export default {
   },
   async created() {
     await this.getTableData()
+    console.log(this.tableData)
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
     const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list, dpRes.data.list)
