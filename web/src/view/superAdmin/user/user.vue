@@ -1,5 +1,20 @@
 <template>
   <div>
+    <div class="gva-search-box">
+      <el-form ref="searchForm" :inline="true" :model="searchInfo">
+        <el-form-item label="用户组织">
+          <el-cascader
+            v-model="searchInfo.departmentId"
+            :options="departmentOptions"
+            :props="{expandTrigger: 'hover',label:'name',value:'id'}"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
+          <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
     <warning-bar title="注：右上角头像下拉可切换角色" />
     <div class="gva-table-box">
       <div class="gva-btn-list">
@@ -212,6 +227,9 @@ export default {
     this.setOptions(res.data.list, dpRes.data.list)
   },
   methods: {
+    onReset() {
+      this.searchInfo = {}
+    },
     resetPassword(row) {
       this.$confirm(
         '是否将此用户密码重置为123456?',
