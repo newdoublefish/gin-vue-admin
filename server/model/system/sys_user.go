@@ -22,6 +22,6 @@ type SysUser struct {
 	Authorities []SysAuthority        `json:"authorities" gorm:"many2many:sys_user_authority;"`
 	Departments []SysUserDepartment   `json:"departments"`
 	Position    autocode.AutoPosition `json:"position"`
-	StaffType   string                `json:"staffType" gorm:"default:系统用户;comment:用户类型"`
-	StaffStatus string                `json:"staffStatus" gorm:"default:系统用户;comment:用户状态"`
+	StaffType   string                `json:"staffType" gorm:"default:regular;comment:用户类型"`  //temporary 临时工, regular 正式工
+	StaffStatus string                `json:"staffStatus" gorm:"default:in-service;comment:用户状态"` //unemployed 离职, employed 在职
 }
