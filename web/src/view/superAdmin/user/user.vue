@@ -26,7 +26,7 @@
             <CustomPic style="margin-top:8px" :pic-src="scope.row.headerImg" />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="UUID" min-width="250" prop="uuid" />
+        <el-table-column align="left" label="员工号" min-width="150" prop="employeeID" />
         <el-table-column align="left" label="用户名" min-width="150" prop="userName" />
         <el-table-column align="left" label="昵称" min-width="100" prop="nickName">
           <template #default="scope">
@@ -74,6 +74,11 @@
             />
           </template>
         </el-table-column>
+        <el-table-column align="left" label="岗位" min-width="150">
+          <template #default="scope">
+            {{ scope.row.position.name }}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="操作" min-width="200">
           <template #default="scope">
             <el-button type="text" icon="magic-stick" size="mini" @click="editUserBasicInfo(scope.row)">编辑用户</el-button>
@@ -108,11 +113,35 @@
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userInfo.userName" :disabled="dialogType === 'edit'" />
         </el-form-item>
+        <el-form-item label="员工号" prop="employeeID">
+          <el-input v-model="userInfo.employeeID" />
+        </el-form-item>
         <el-form-item v-if="dialogType === 'addUser'" label="密码" prop="password">
           <el-input v-model="userInfo.password" />
         </el-form-item>
         <el-form-item label="别名" prop="nickName">
           <el-input v-model="userInfo.nickName" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-select
+            v-model="userInfo.gender"
+            style="width:100%"
+            placeholder="请选择用户性别"
+            clearable
+          >
+            <el-option
+              v-for="item in genderOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="电话" prop="mobile">
+          <el-input v-model="userInfo.mobile" />
+        </el-form-item>
+        <el-form-item label="身份证号码" prop="citizenNumber">
+          <el-input v-model="userInfo.citizenNumber" />
         </el-form-item>
         <el-form-item label="用户角色" prop="authorityId">
           <el-cascader
@@ -133,6 +162,46 @@
             :props="{ multiple:true,checkStrictly: true,label:'name',value:'id',disabled:'disabled',emitPath:false}"
             :clearable="false"
           />
+        </el-form-item>
+        <el-form-item label="用户岗位">
+          <el-select v-model="userInfo.positionId" clearable placeholder="Select">
+            <el-option
+              v-for="p in positions"
+              :key="p.ID"
+              :label="p.name"
+              :value="p.ID"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户类型">
+          <el-select
+            v-model="userInfo.staffType"
+            style="width:100%"
+            placeholder="请选择用户类型"
+            clearable
+          >
+            <el-option
+              v-for="item in staffTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户状态">
+          <el-select
+            v-model="userInfo.staffStatus"
+            style="width:100%"
+            placeholder="请选择用户状态"
+            clearable
+          >
+            <el-option
+              v-for="item in staffStatusOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="头像" label-width="80px">
           <div style="display:inline-block" @click="openHeaderChange">
@@ -157,6 +226,9 @@
 // 获取列表内容封装在mixins内部  getTableData方法 初始化已封装完成
 const path = import.meta.env.VITE_BASE_API
 import {
+  getAutoPositionList
+} from '@/api/autoPosition' //  此处请自行替换地址
+import {
   getUserList,
   setUserAuthorities,
   setUserDepartments,
@@ -168,6 +240,7 @@ import {
   getSysDepartmentTree
 } from '@/api/sysDepartment' //  此处请自行替换地址
 import { getAuthorityList } from '@/api/authority'
+import { getDict } from '@/utils/dictionary'
 import infoList from '@/mixins/infoList'
 import { mapGetters } from 'vuex'
 import CustomPic from '@/components/customPic/index.vue'
@@ -183,9 +256,13 @@ export default {
       dialogTitle: '新增Api',
       dialogType: 'addUser',
       listApi: getUserList,
+      staffTypeOptions: [],
+      staffStatusOptions: [],
+      genderOptions: [],
       path: path,
       authOptions: [],
       departmentOptions: [],
+      positions: [],
       addUserDialog: false,
       backNickName: '',
       userInfo: {
@@ -194,10 +271,21 @@ export default {
         nickName: '',
         headerImg: '',
         authorityId: '',
+        positionId: undefined,
         authorityIds: [],
-        departmentIds: []
+        departmentIds: [],
+        staffType: undefined,
+        staffStatus: undefined,
+        employeeID: '',
+        gender: undefined,
+        mobile: '',
+        citizenNumber: ''
       },
       rules: {
+        employeeID: [
+          { required: true, message: '请输入员工号', trigger: 'blur' },
+          { min: 10, max: 10, message: '长度为10位字符', trigger: 'blur' },
+        ],
         userName: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 5, message: '最低5位字符', trigger: 'blur' }
@@ -214,6 +302,17 @@ export default {
         ],
         departmentId: [
           { required: true, message: '请选择用户组织', trigger: 'blur' }
+        ],
+        mobile: [
+          { required: false, message: '请输入手机号', trigger: 'blur' },
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '手机号格式错误'
+          }
+        ],
+        citizenNumber: [
+          { required: false, message: '身份证号不能为空', trigger: 'blur' },
+          { validator: this.validID, trigger: 'blur', message: '身份证号格式错误' }
         ]
       }
     }
@@ -228,12 +327,66 @@ export default {
     }
   },
   async created() {
+    await this.loadStaffOptions()
     await this.getTableData()
+    console.log(this.tableData)
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
     const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list, dpRes.data.list)
+    const positionRes = await getAutoPositionList({ page: 1, pageSize: 999 })
+    if (positionRes.code === 0) {
+      this.positions = positionRes.data.list
+    }
   },
   methods: {
+    // 身份证验证
+    async validID(rule, value, callback) {
+      if (!value || value.length === 0) {
+        return
+      }
+      // 身份证号码为15位或者18位，15位时全为数字，18位前17位为数字，最后一位是校验位，可能为数字或字符X
+      const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
+      if (reg.test(value)) {
+        // await this.go(value.length)
+        callback()
+      } else {
+        callback(new Error('身份证号码不正确'))
+      }
+    },
+    // 实现自动生成生日，性别，年龄
+    go(val) {
+      const iden = this.baseInfo.idCardNo
+      let sex = null
+      let birth = null
+      const myDate = new Date()
+      const month = myDate.getMonth() + 1
+      const day = myDate.getDate()
+      let age = 0
+
+      if (val === 18) {
+        age = myDate.getFullYear() - iden.substring(6, 10) - 1
+        sex = iden.substring(16, 17)
+        birth = iden.substring(6, 10) + '-' + iden.substring(10, 12) + '-' + iden.substring(12, 14)
+        if (iden.substring(10, 12) < month || iden.substring(10, 12) === month && iden.substring(12, 14) <= day) age++
+      }
+      if (val === 15) {
+        age = myDate.getFullYear() - iden.substring(6, 8) - 1901
+        sex = iden.substring(13, 14)
+        birth = '19' + iden.substring(6, 8) + '-' + iden.substring(8, 10) + '-' + iden.substring(10, 12)
+        if (iden.substring(8, 10) < month || iden.substring(8, 10) === month && iden.substring(10, 12) <= day) age++
+      }
+
+      if (sex % 2 === 0) { sex = '0' } else { sex = '1' }
+      this.baseInfo.sex = sex
+      this.baseInfo.age = age
+      this.baseInfo.birthday = birth
+      this.baseInfo.birthplace = this.area[iden.substring(0, 2)]
+    },
+    async loadStaffOptions() {
+      this.staffTypeOptions = await getDict('staffType')
+      this.staffStatusOptions = await getDict('staffStatus')
+      this.genderOptions = await getDict('gender')
+    },
     onSubmit() {
       if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
         console.log(this.searchInfo.department.length)
@@ -403,11 +556,18 @@ export default {
     resetForm() {
       this.userInfo = {}
       this.userInfo.userName = ''
+      this.userInfo.employeeID = ''
       this.userInfo.password = ''
       this.userInfo.headerImg = ''
       this.userInfo.nickName = ''
+      this.userInfo.positionId = undefined
       this.userInfo.authorityIds = []
       this.userInfo.departmentIds = []
+      this.userInfo.staffType = undefined
+      this.userInfo.staffStatus = undefined
+      this.userInfo.gender = undefined
+      this.userInfo.mobile = ''
+      this.userInfo.citizenNumber = ''
     },
     closeAddUserDialog() {
       if (this.dialogType === 'addUser') {

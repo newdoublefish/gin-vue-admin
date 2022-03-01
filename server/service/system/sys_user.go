@@ -28,6 +28,10 @@ func (userService *UserService) Register(u system.SysUser) (err error, userInter
 		if !errors.Is(tx.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
 			return errors.New("用户名已注册")
 		}
+
+		if !errors.Is(tx.Where("employee_id = ?", u.EmployeeID).First(&user).Error, gorm.ErrRecordNotFound) { // 判断员工号是否注册
+			return errors.New("员工号已注册")
+		}
 		// 否则 附加uuid 密码md5简单加密 注册
 		u.Password = utils.MD5V([]byte(u.Password))
 		u.UUID = uuid.NewV4()
@@ -103,6 +107,7 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	//}
 	//TODO: 搜索逻辑
 	db = db.Preload("Departments")
+	db = db.Preload("Position")
 	err = db.Find(&userList).Error
 	return err, userList, total
 }
@@ -265,12 +270,18 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		// 加锁
 		var user system.SysUser
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", r.ID).First(&user).Error
+
+		//err :=tx.Where("employee_id = ? and id != ? ", r.EmployeeID, r.ID).First(&user).Error
+		if !errors.Is(tx.Where("employee_id = ? and id != ? ", r.EmployeeID, r.ID).First(&user).Error, gorm.ErrRecordNotFound) { // 判断员工号是否注册
+			return errors.New("员工号已被占用")
+		}
+
+		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", r.ID).First(&user).Error
 		if err != nil {
 			return err
 		}
 
-		err = tx.Model(&user).Updates(system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg}).Error
+		err = tx.Model(&user).Updates(r.ToSysUser()).Error
 		if err != nil {
 			return err
 		}

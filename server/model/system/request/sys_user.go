@@ -1,6 +1,9 @@
 package request
 
-import "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+import (
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+)
 
 // User register structure
 type Register struct {
@@ -10,16 +13,38 @@ type Register struct {
 	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
 	AuthorityId   string   `json:"authorityId" gorm:"default:888"`
 	AuthorityIds  []string `json:"authorityIds"`
-	DepartmentIds []uint `json:"departmentIds"`
+	DepartmentIds []uint   `json:"departmentIds"`
+	PositionId    uint     `json:"positionId"`
+	EmployeeID    string   `json:"employeeID"`
+	StaffType     uint     `json:"staffType"`
+	StaffStatus   uint     `json:"staffStatus"`
+	Gender        uint     `json:"gender"`
+	Mobile        string   `json:"mobile"`
+	CitizenNumber string   `json:"citizenNumber"`
+}
+
+func (r Register) ToSysUser() system.SysUser {
+	return system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus,Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
 }
 
 // User register structure
 type UpdateUserBasicInfo struct {
-	ID           uint
+	ID            uint
 	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
 	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
 	AuthorityIds  []string `json:"authorityIds"`
-	DepartmentIds []uint `json:"departmentIds"`
+	DepartmentIds []uint   `json:"departmentIds"`
+	PositionId    uint     `json:"positionId"`
+	EmployeeID    string   `json:"employeeID"`
+	StaffType     uint     `json:"staffType"`
+	StaffStatus   uint     `json:"staffStatus"`
+	Gender        uint     `json:"gender"`
+	Mobile        string   `json:"mobile"`
+	CitizenNumber string   `json:"citizenNumber"`
+}
+
+func (r UpdateUserBasicInfo) ToSysUser() system.SysUser {
+	return system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg, PositionId: r.PositionId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus,Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
 }
 
 // User login structure
@@ -49,7 +74,7 @@ type SetUserAuthorities struct {
 }
 
 type SetUserDepartments struct {
-	ID           uint
+	ID            uint
 	DepartmentIds []uint `json:"departmentIds"` // 角色ID
 }
 
