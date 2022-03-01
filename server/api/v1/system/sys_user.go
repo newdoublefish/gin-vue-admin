@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -152,7 +153,7 @@ func (b *BaseApi) UpdateBasicInfo(c *gin.Context) {
 	_ = c.ShouldBindJSON(&r)
 	if err := userService.UpdateBasicInfo(r); err != nil {
 		global.GVA_LOG.Error("修改失败!", zap.Error(err))
-		response.FailWithMessage("修改失败", c)
+		response.FailWithMessage(fmt.Sprintf("修改失败:%s", err.Error()), c)
 	} else {
 		response.OkWithMessage("修改成功", c)
 	}

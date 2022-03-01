@@ -270,7 +270,13 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		// 加锁
 		var user system.SysUser
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", r.ID).First(&user).Error
+
+		//err :=tx.Where("employee_id = ? and id != ? ", r.EmployeeID, r.ID).First(&user).Error
+		if !errors.Is(tx.Where("employee_id = ? and id != ? ", r.EmployeeID, r.ID).First(&user).Error, gorm.ErrRecordNotFound) { // 判断员工号是否注册
+			return errors.New("员工号已被占用")
+		}
+
+		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", r.ID).First(&user).Error
 		if err != nil {
 			return err
 		}

@@ -137,10 +137,10 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="电话">
+        <el-form-item label="电话" prop="mobile">
           <el-input v-model="userInfo.mobile" />
         </el-form-item>
-        <el-form-item label="身份证号码">
+        <el-form-item label="身份证号码" prop="citizenNumber">
           <el-input v-model="userInfo.citizenNumber" />
         </el-form-item>
         <el-form-item label="用户角色" prop="authorityId">
@@ -284,7 +284,7 @@ export default {
       rules: {
         employeeID: [
           { required: true, message: '请输入员工号', trigger: 'blur' },
-          { min: 10, message: '最低10位字符', trigger: 'blur' }
+          { min: 10, max: 10, message: '长度为10位字符', trigger: 'blur' },
         ],
         userName: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -302,6 +302,17 @@ export default {
         ],
         departmentId: [
           { required: true, message: '请选择用户组织', trigger: 'blur' }
+        ],
+        mobile: [
+          { required: false, message: '请输入手机号', trigger: 'blur' },
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '手机号格式错误'
+          }
+        ],
+        citizenNumber: [
+          { required: false, message: '身份证号不能为空', trigger: 'blur' },
+          { validator: this.validID, trigger: 'blur', message: '身份证号格式错误' }
         ]
       }
     }
@@ -328,6 +339,46 @@ export default {
     }
   },
   methods: {
+    // 身份证验证
+    async validID(rule, value, callback) {
+      // 身份证号码为15位或者18位，15位时全为数字，18位前17位为数字，最后一位是校验位，可能为数字或字符X
+      const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
+      if (reg.test(value)) {
+        // await this.go(value.length)
+        callback()
+      } else {
+        callback(new Error('身份证号码不正确'))
+      }
+    },
+    // 实现自动生成生日，性别，年龄
+    go(val) {
+      const iden = this.baseInfo.idCardNo
+      let sex = null
+      let birth = null
+      const myDate = new Date()
+      const month = myDate.getMonth() + 1
+      const day = myDate.getDate()
+      let age = 0
+
+      if (val === 18) {
+        age = myDate.getFullYear() - iden.substring(6, 10) - 1
+        sex = iden.substring(16, 17)
+        birth = iden.substring(6, 10) + '-' + iden.substring(10, 12) + '-' + iden.substring(12, 14)
+        if (iden.substring(10, 12) < month || iden.substring(10, 12) === month && iden.substring(12, 14) <= day) age++
+      }
+      if (val === 15) {
+        age = myDate.getFullYear() - iden.substring(6, 8) - 1901
+        sex = iden.substring(13, 14)
+        birth = '19' + iden.substring(6, 8) + '-' + iden.substring(8, 10) + '-' + iden.substring(10, 12)
+        if (iden.substring(8, 10) < month || iden.substring(8, 10) === month && iden.substring(10, 12) <= day) age++
+      }
+
+      if (sex % 2 === 0) { sex = '0' } else { sex = '1' }
+      this.baseInfo.sex = sex
+      this.baseInfo.age = age
+      this.baseInfo.birthday = birth
+      this.baseInfo.birthplace = this.area[iden.substring(0, 2)]
+    },
     async loadStaffOptions() {
       this.staffTypeOptions = await getDict('staffType')
       this.staffStatusOptions = await getDict('staffStatus')
