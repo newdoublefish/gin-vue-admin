@@ -8,7 +8,8 @@ import (
 
 type SysUser struct {
 	global.GVA_MODEL
-	UUID        uuid.UUID             `json:"uuid" gorm:"comment:用户UUID"`                                                           // 用户UUID
+	UUID        uuid.UUID             `json:"uuid" gorm:"comment:用户UUID"` // 用户UUID
+	EmployeeID  string                `json:"employeeID" gorm:"comment:工号"`
 	Username    string                `json:"userName" gorm:"comment:用户登录名"`                                                        // 用户登录名
 	Password    string                `json:"-"  gorm:"comment:用户登录密码"`                                                             // 用户登录密码
 	NickName    string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                            // 用户昵称
@@ -22,6 +23,6 @@ type SysUser struct {
 	Authorities []SysAuthority        `json:"authorities" gorm:"many2many:sys_user_authority;"`
 	Departments []SysUserDepartment   `json:"departments"`
 	Position    autocode.AutoPosition `json:"position"`
-	StaffType   uint                `json:"staffType" gorm:"default:1;comment:用户类型"`  //1 regular 正式工,2 temporary 临时工,
-	StaffStatus uint                `json:"staffStatus" gorm:"default:1;comment:用户状态"` //1 employed 在职, 2 unemployed 离职
+	StaffType   uint                  `json:"staffType" gorm:"default:1;comment:用户类型"`   //1 regular 正式工,2 temporary 临时工,
+	StaffStatus uint                  `json:"staffStatus" gorm:"default:1;comment:用户状态"` //1 employed 在职, 2 unemployed 离职
 }
