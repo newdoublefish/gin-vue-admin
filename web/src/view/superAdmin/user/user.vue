@@ -122,6 +122,27 @@
         <el-form-item label="别名" prop="nickName">
           <el-input v-model="userInfo.nickName" />
         </el-form-item>
+        <el-form-item label="性别">
+          <el-select
+            v-model="userInfo.gender"
+            style="width:100%"
+            placeholder="请选择用户性别"
+            clearable
+          >
+            <el-option
+              v-for="item in genderOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input v-model="userInfo.mobile" />
+        </el-form-item>
+        <el-form-item label="身份证号码">
+          <el-input v-model="userInfo.citizenNumber" />
+        </el-form-item>
         <el-form-item label="用户角色" prop="authorityId">
           <el-cascader
             v-model="userInfo.authorityIds"
@@ -237,6 +258,7 @@ export default {
       listApi: getUserList,
       staffTypeOptions: [],
       staffStatusOptions: [],
+      genderOptions: [],
       path: path,
       authOptions: [],
       departmentOptions: [],
@@ -255,6 +277,9 @@ export default {
         staffType: undefined,
         staffStatus: undefined,
         employeeID: '',
+        gender: undefined,
+        mobile: '',
+        citizenNumber: ''
       },
       rules: {
         employeeID: [
@@ -306,6 +331,7 @@ export default {
     async loadStaffOptions() {
       this.staffTypeOptions = await getDict('staffType')
       this.staffStatusOptions = await getDict('staffStatus')
+      this.genderOptions = await getDict('gender')
     },
     onSubmit() {
       if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
@@ -485,6 +511,9 @@ export default {
       this.userInfo.departmentIds = []
       this.userInfo.staffType = undefined
       this.userInfo.staffStatus = undefined
+      this.userInfo.gender = undefined
+      this.userInfo.mobile = ''
+      this.userInfo.citizenNumber = ''
     },
     closeAddUserDialog() {
       if (this.dialogType === 'addUser') {
