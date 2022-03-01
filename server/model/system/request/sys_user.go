@@ -12,6 +12,9 @@ type Register struct {
 	AuthorityIds  []string `json:"authorityIds"`
 	DepartmentIds []uint   `json:"departmentIds"`
 	PositionId    uint     `json:"positionId"`
+	EmployeeID    string   `json:"employeeID"`
+	StaffType     uint     `json:"staffType"`
+	StaffStatus   uint     `json:"staffStatus"`
 }
 
 // User register structure
@@ -22,6 +25,9 @@ type UpdateUserBasicInfo struct {
 	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
 	AuthorityIds  []string `json:"authorityIds"`
 	DepartmentIds []uint   `json:"departmentIds"`
+	EmployeeID    string   `json:"employeeID"`
+	StaffType     uint     `json:"staffType"`
+	StaffStatus   uint     `json:"staffStatus"`
 }
 
 // User login structure

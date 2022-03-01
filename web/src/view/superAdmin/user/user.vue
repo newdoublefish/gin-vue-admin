@@ -26,7 +26,7 @@
             <CustomPic style="margin-top:8px" :pic-src="scope.row.headerImg" />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="UUID" min-width="250" prop="uuid" />
+        <el-table-column align="left" label="UUID" min-width="250" prop="employeeID" />
         <el-table-column align="left" label="用户名" min-width="150" prop="userName" />
         <el-table-column align="left" label="昵称" min-width="100" prop="nickName">
           <template #default="scope">
@@ -113,6 +113,9 @@
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userInfo.userName" :disabled="dialogType === 'edit'" />
         </el-form-item>
+        <el-form-item label="员工号">
+          <el-input v-model="userInfo.employeeID" />
+        </el-form-item>
         <el-form-item v-if="dialogType === 'addUser'" label="密码" prop="password">
           <el-input v-model="userInfo.password" />
         </el-form-item>
@@ -146,6 +149,36 @@
               :key="p.ID"
               :label="p.name"
               :value="p.ID"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户类型">
+          <el-select
+            v-model="userInfo.staffType"
+            style="width:100%"
+            placeholder="请选择用户类型"
+            clearable
+          >
+            <el-option
+              v-for="item in staffTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户状态">
+          <el-select
+            v-model="userInfo.staffStatus"
+            style="width:100%"
+            placeholder="请选择用户状态"
+            clearable
+          >
+            <el-option
+              v-for="item in staffStatusOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             />
           </el-select>
         </el-form-item>
@@ -186,6 +219,7 @@ import {
   getSysDepartmentTree
 } from '@/api/sysDepartment' //  此处请自行替换地址
 import { getAuthorityList } from '@/api/authority'
+import { getDict } from '@/utils/dictionary'
 import infoList from '@/mixins/infoList'
 import { mapGetters } from 'vuex'
 import CustomPic from '@/components/customPic/index.vue'
@@ -201,6 +235,8 @@ export default {
       dialogTitle: '新增Api',
       dialogType: 'addUser',
       listApi: getUserList,
+      staffTypeOptions: [],
+      staffStatusOptions: [],
       path: path,
       authOptions: [],
       departmentOptions: [],
@@ -215,9 +251,16 @@ export default {
         authorityId: '',
         positionId: undefined,
         authorityIds: [],
-        departmentIds: []
+        departmentIds: [],
+        staffType: undefined,
+        staffStatus: undefined,
+        employeeID: '',
       },
       rules: {
+        employeeID: [
+          { required: true, message: '请输入员工号', trigger: 'blur' },
+          { min: 10, message: '最低10位字符', trigger: 'blur' }
+        ],
         userName: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 5, message: '最低5位字符', trigger: 'blur' }
@@ -248,6 +291,7 @@ export default {
     }
   },
   async created() {
+    await this.loadStaffOptions()
     await this.getTableData()
     console.log(this.tableData)
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
@@ -259,6 +303,10 @@ export default {
     }
   },
   methods: {
+    async loadStaffOptions() {
+      this.staffTypeOptions = await getDict('staffType')
+      this.staffStatusOptions = await getDict('staffStatus')
+    },
     onSubmit() {
       if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
         console.log(this.searchInfo.department.length)
@@ -428,12 +476,15 @@ export default {
     resetForm() {
       this.userInfo = {}
       this.userInfo.userName = ''
+      this.userInfo.employeeID = ''
       this.userInfo.password = ''
       this.userInfo.headerImg = ''
       this.userInfo.nickName = ''
       this.userInfo.positionId = undefined
       this.userInfo.authorityIds = []
       this.userInfo.departmentIds = []
+      this.userInfo.staffType = undefined
+      this.userInfo.staffStatus = undefined
     },
     closeAddUserDialog() {
       if (this.dialogType === 'addUser') {
