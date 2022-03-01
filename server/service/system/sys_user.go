@@ -28,6 +28,10 @@ func (userService *UserService) Register(u system.SysUser) (err error, userInter
 		if !errors.Is(tx.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
 			return errors.New("用户名已注册")
 		}
+
+		if !errors.Is(tx.Where("employee_id = ?", u.EmployeeID).First(&user).Error, gorm.ErrRecordNotFound) { // 判断员工号是否注册
+			return errors.New("员工号已注册")
+		}
 		// 否则 附加uuid 密码md5简单加密 注册
 		u.Password = utils.MD5V([]byte(u.Password))
 		u.UUID = uuid.NewV4()

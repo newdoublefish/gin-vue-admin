@@ -113,7 +113,7 @@
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userInfo.userName" :disabled="dialogType === 'edit'" />
         </el-form-item>
-        <el-form-item label="员工号">
+        <el-form-item label="员工号" prop="employeeID">
           <el-input v-model="userInfo.employeeID" />
         </el-form-item>
         <el-form-item v-if="dialogType === 'addUser'" label="密码" prop="password">

@@ -18,10 +18,13 @@ type Register struct {
 	EmployeeID    string   `json:"employeeID"`
 	StaffType     uint     `json:"staffType"`
 	StaffStatus   uint     `json:"staffStatus"`
+	Gender        uint     `json:"gender"`
+	Mobile        string   `json:"mobile"`
+	CitizenNumber string   `json:"citizenNumber"`
 }
 
 func (r Register) ToSysUser() system.SysUser {
-	return system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus}
+	return system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus,Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
 }
 
 // User register structure
@@ -35,10 +38,13 @@ type UpdateUserBasicInfo struct {
 	EmployeeID    string   `json:"employeeID"`
 	StaffType     uint     `json:"staffType"`
 	StaffStatus   uint     `json:"staffStatus"`
+	Gender        uint     `json:"gender"`
+	Mobile        string   `json:"mobile"`
+	CitizenNumber string   `json:"citizenNumber"`
 }
 
 func (r UpdateUserBasicInfo) ToSysUser() system.SysUser {
-	return system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg, PositionId: r.PositionId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus}
+	return system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg, PositionId: r.PositionId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus,Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
 }
 
 // User login structure
