@@ -271,7 +271,7 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 			return err
 		}
 
-		err = tx.Model(&user).Updates(system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg, PositionId: r.PositionId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus}).Error
+		err = tx.Model(&user).Updates(r.ToSysUser()).Error
 		if err != nil {
 			return err
 		}

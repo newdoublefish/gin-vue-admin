@@ -127,8 +127,11 @@ func (b *BaseApi) Register(c *gin.Context) {
 		})
 	}
 
-	user := &system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Departments: departments,EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus}
-	err, userReturn := userService.Register(*user)
+	user := r.ToSysUser()
+	user.Authorities = authorities
+	user.Departments = departments
+	//user := &system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Departments: departments,EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus}
+	err, userReturn := userService.Register(user)
 	if err != nil {
 		global.GVA_LOG.Error("注册失败!", zap.Error(err))
 		response.FailWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册失败", c)
