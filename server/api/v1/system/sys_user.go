@@ -53,12 +53,13 @@ func (b *BaseApi) Oauth(c *gin.Context) {
 	var o systemReq.OAuth
 	_ = c.ShouldBindJSON(&o)
 
-	err,token:=userService.Oauth(o.Code, o.State)
+	err,token, user:=userService.Oauth(o.Code, o.State)
 	if err!=nil{
 			response.FailWithMessage(err.Error(), c)
 			return
 	}else{
 		response.OkWithDetailed(systemRes.OauthResponse{
+			User: user,
 			Token:     token,
 		}, "成功", c)
 		return

@@ -70,7 +70,7 @@ func CasdoorParse(c *gin.Context, token string) error {
 			cusClaims.Username = claims.Name
 			cusClaims.NickName = claims.DisplayName
 			cusClaims.AuthorityId = claims.Tag
-			c.Set("claims", claims)
+			c.Set("claims", &cusClaims)
 			c.Next()
 		} else {
 			return err

@@ -70,14 +70,23 @@ func (userService *UserService) Login(u *system.SysUser) (err error, userInter *
 	return err, &user
 }
 
-func (userService *UserService) Oauth(code string, state string)(err error, token string){
+func (userService *UserService) Oauth(code string, state string)(err error, token string, userInter system.SysUser){
 	t, err := auth.GetOAuthToken(code, state)
 	if err != nil {
-		panic(err)
+		return
 	}else{
 		fmt.Printf("AccessToken:%s\n", t.AccessToken)
 	}
 	token = t.AccessToken
+
+	claims, err := auth.ParseJwtToken(token)
+	if err != nil {
+		panic(err)
+	}else{
+		fmt.Printf("claims:%v\n", claims)
+	}
+
+	err = global.GVA_DB.Where("username = ?", claims.Name).Preload("Authorities").Preload("Authority").First(&userInter).Error
 	return
 }
 
