@@ -18,10 +18,10 @@ var endPoint = "http://10.0.0.69:8000"
 
 func Casdoor() error {
 	auth.InitConfig(endPoint,
-		"3dd9fd33b45821f80651",
-		"a9ae00d7b70447922bb90841fcba794b33c2e239",
+		"c68223c4e2195dbe987f",
+		"33ed90a877586dc435a233cce2930f8ac42623af",
 		JwtPublicKey,
 		"built-in",
-		"application_rr5d06")
+		"usercenter")
 	return nil
 }

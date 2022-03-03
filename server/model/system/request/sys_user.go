@@ -55,6 +55,11 @@ type Login struct {
 	CaptchaId string `json:"captchaId"` // 验证码ID
 }
 
+type OAuth struct {
+	Code string `json:"code"`
+	State string `json:"state"`
+}
+
 // Modify password structure
 type ChangePasswordStruct struct {
 	Username    string `json:"username"`    // 用户名
