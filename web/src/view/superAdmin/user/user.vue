@@ -654,32 +654,34 @@ export default {
       this.openDialog('edit')
     },
     async changeAuthority(row, flag) {
-      if (flag) {
-        return
-      }
-      this.$nextTick(async() => {
-        const res = await setUserAuthorities({
-          ID: row.ID,
-          authorityIds: row.authorityIds
-        })
-        if (res.code === 0) {
-          this.$message({ type: 'success', message: '角色设置成功' })
-        }
-      })
+      return
+      // if (flag) {
+      //   return
+      // }
+      // this.$nextTick(async() => {
+      //   const res = await setUserAuthorities({
+      //     ID: row.ID,
+      //     authorityIds: row.authorityIds
+      //   })
+      //   if (res.code === 0) {
+      //     this.$message({ type: 'success', message: '角色设置成功' })
+      //   }
+      // })
     },
     async changeDepartments(row, flag) {
-      if (flag) {
-        return
-      }
-      this.$nextTick(async() => {
-        const res = await setUserDepartments({
-          ID: row.ID,
-          departmentIds: row.departmentIds
-        })
-        if (res.code === 0) {
-          this.$message({ type: 'success', message: '组织设置成功' })
-        }
-      })
+      return
+      // if (flag) {
+      //   return
+      // }
+      // this.$nextTick(async() => {
+      //   const res = await setUserDepartments({
+      //     ID: row.ID,
+      //     departmentIds: row.departmentIds
+      //   })
+      //   if (res.code === 0) {
+      //     this.$message({ type: 'success', message: '组织设置成功' })
+      //   }
+      // })
     },
   }
 }
