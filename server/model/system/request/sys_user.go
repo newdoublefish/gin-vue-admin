@@ -90,4 +90,6 @@ type UserSearch struct {
 	DepartmentId uint   `json:"departmentId"`
 	PositionId   uint   `json:"positionId"`
 	AuthorityId  string `json:"authorityId" `
+	StaffType    uint   `json:"staffType"`
+	StaffStatus  uint   `json:"staffStatus"`
 }

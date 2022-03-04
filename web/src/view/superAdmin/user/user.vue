@@ -32,6 +32,26 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="用户类型">
+          <el-select v-model="searchInfo.staffType" clearable placeholder="请选择">
+            <el-option
+              v-for="item in staffTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户状态">
+          <el-select v-model="searchInfo.staffStatus" clearable placeholder="请选择">
+            <el-option
+              v-for="item in staffStatusOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>

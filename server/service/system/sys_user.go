@@ -140,10 +140,21 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.authority_id", info.AuthorityId)
 	}
 
+	if info.StaffStatus != 0 {
+		db = db.Where("sys_users.staff_status", info.StaffStatus)
+	}
+
+	if info.StaffType != 0 {
+		db = db.Where("sys_users.staff_type", info.StaffType)
+	}
+
 	if info.DepartmentId != 0 {
 		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
 
 	}
+
+
+
 	db = db.Limit(limit).Offset(offset)
 	db = db.Preload("Departments")
 	db = db.Preload("Position")
