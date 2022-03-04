@@ -3,6 +3,7 @@ package system
 import (
 	"errors"
 	"fmt"
+	"github.com/casdoor/casdoor-go-sdk/auth"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"gorm.io/gorm/clause"
 
@@ -67,6 +68,26 @@ func (userService *UserService) Login(u *system.SysUser) (err error, userInter *
 	u.Password = utils.MD5V([]byte(u.Password))
 	err = global.GVA_DB.Where("username = ? AND password = ?", u.Username, u.Password).Preload("Authorities").Preload("Authority").First(&user).Error
 	return err, &user
+}
+
+func (userService *UserService) Oauth(code string, state string)(err error, token string, userInter system.SysUser){
+	t, err := auth.GetOAuthToken(code, state)
+	if err != nil {
+		return
+	}else{
+		fmt.Printf("AccessToken:%s\n", t.AccessToken)
+	}
+	token = t.AccessToken
+
+	claims, err := auth.ParseJwtToken(token)
+	if err != nil {
+		return
+	}else{
+		fmt.Printf("claims:%v\n", claims)
+	}
+
+	err = global.GVA_DB.Where("username = ?", claims.Name).Preload("Authorities").Preload("Authority").First(&userInter).Error
+	return
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)

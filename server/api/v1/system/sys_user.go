@@ -43,6 +43,45 @@ func (b *BaseApi) Login(c *gin.Context) {
 	}
 }
 
+// @Tags Base
+// @Summary 用户登录
+// @Produce  application/json
+// @Param data body systemReq.OAuth true "用户名, 密码, 验证码"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"登陆成功"}"
+// @Router /base/oauth [post]
+func (b *BaseApi) Oauth(c *gin.Context) {
+	var o systemReq.OAuth
+	_ = c.ShouldBindJSON(&o)
+
+	err,token, user:=userService.Oauth(o.Code, o.State)
+	if err!=nil{
+			response.FailWithMessage(err.Error(), c)
+			return
+	}else{
+		response.OkWithDetailed(systemRes.OauthResponse{
+			User: user,
+			Token:     token,
+		}, "成功", c)
+		return
+	}
+
+	//if err := utils.Verify(l, utils.LoginVerify); err != nil {
+	//	response.FailWithMessage(err.Error(), c)
+	//	return
+	//}
+	//if store.Verify(l.CaptchaId, l.Captcha, true) {
+	//	u := &system.SysUser{Username: l.Username, Password: l.Password}
+	//	if err, user := userService.Login(u); err != nil {
+	//		global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
+	//		response.FailWithMessage("用户名不存在或者密码错误", c)
+	//	} else {
+	//		b.tokenNext(c, *user)
+	//	}
+	//} else {
+	//	response.FailWithMessage("验证码错误", c)
+	//}
+}
+
 // 登录以后签发jwt
 func (b *BaseApi) tokenNext(c *gin.Context, user system.SysUser) {
 	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名

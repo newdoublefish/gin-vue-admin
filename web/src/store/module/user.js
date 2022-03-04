@@ -1,4 +1,4 @@
-import { login, getUserInfo, setUserInfo } from '@/api/user'
+import { login, getUserInfo, setUserInfo, oauth } from '@/api/user'
 import { jsonInBlacklist } from '@/api/jwt'
 import router from '@/router/index'
 import { ElMessage } from 'element-plus'
@@ -53,6 +53,26 @@ export const user = {
         commit('setUserInfo', res.data.userInfo)
       }
       return res
+    },
+    async Oauth({ commit, dispatch, rootGetters, getters }, oauthInfo) {
+      const res = await oauth(oauthInfo)
+      if (res.code === 0) {
+        commit('setUserInfo', res.data.user)
+        commit('setToken', res.data.token)
+        await dispatch('router/SetAsyncRouter', {}, { root: true })
+        const asyncRouters = rootGetters['router/asyncRouters']
+        asyncRouters.forEach(asyncRouter => {
+          router.addRoute(asyncRouter)
+        })
+        // const redirect = router.history.current.query.redirect
+        // console.log(redirect)
+        // if (redirect) {
+        //     router.push({ path: redirect })
+        // } else {
+        router.push({ name: getters['userInfo'].authority.defaultRouter })
+        // }
+        return true
+      }
     },
     async LoginIn({ commit, dispatch, rootGetters, getters }, loginInfo) {
       const res = await login(loginInfo)

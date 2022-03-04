@@ -68,6 +68,13 @@
               @click="submitForm"
             >登 录</el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              style="width: 46%"
+              @click="casdoorLogin"
+            >统一认证</el-button>
+          </el-form-item>
         </el-form>
       </div>
       <div class="login_panle_right" />
@@ -139,11 +146,25 @@ export default {
       picPath: ''
     }
   },
-  created() {
+  async created() {
+    await this.casdoor()
     this.loginVerify()
   },
   methods: {
-    ...mapActions('user', ['LoginIn']),
+    ...mapActions('user', ['LoginIn', 'Oauth']),
+    async casdoor() {
+      var codepattern = /code=(\S*)(?=&)/
+      var statepattern = /state=(\S*)(?=#)/
+      var str = window.location.href
+      if (codepattern.test(str) && statepattern.test(str)) {
+        console.log(str.match(codepattern)[1])
+        console.log(str.match(statepattern)[1])
+        return await this.Oauth({ code: str.match(codepattern)[1], state: str.match(statepattern)[1] })
+      }
+      // else {
+      //   window.location.replace('http://10.0.0.69:8000/login/oauth/authorize?client_id=3dd9fd33b45821f80651&response_type=code&redirect_uri=http://localhost:9527&scope=read&state=casdoor')
+      // }
+    },
     async checkInit() {
       const res = await checkDB()
       if (res.code === 0) {
@@ -157,6 +178,9 @@ export default {
           })
         }
       }
+    },
+    casdoorLogin() {
+      window.location.replace('http://10.0.0.69:8000/login/oauth/authorize?client_id=c68223c4e2195dbe987f&response_type=code&redirect_uri=http://10.0.0.69:8080&scope=read&state=casdoor')
     },
     async login() {
       return await this.LoginIn(this.loginForm)

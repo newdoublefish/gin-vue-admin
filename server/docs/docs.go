@@ -24,6 +24,671 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/Position/createAutoPosition": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoPosition"
+                ],
+                "summary": "创建AutoPosition",
+                "parameters": [
+                    {
+                        "description": "创建AutoPosition",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/autocode.AutoPosition"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/Position/deleteAutoPosition": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoPosition"
+                ],
+                "summary": "删除AutoPosition",
+                "parameters": [
+                    {
+                        "description": "删除AutoPosition",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/autocode.AutoPosition"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/Position/deleteAutoPositionByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoPosition"
+                ],
+                "summary": "批量删除AutoPosition",
+                "parameters": [
+                    {
+                        "description": "批量删除AutoPosition",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"批量删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/Position/findAutoPosition": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoPosition"
+                ],
+                "summary": "用id查询AutoPosition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "更新时间",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/Position/getAutoPositionList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoPosition"
+                ],
+                "summary": "分页获取AutoPosition列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页大小",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "更新时间",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/Position/updateAutoPosition": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AutoPosition"
+                ],
+                "summary": "更新AutoPosition",
+                "parameters": [
+                    {
+                        "description": "更新AutoPosition",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/autocode.AutoPosition"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/createSysDepartment": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "创建SysDepartment",
+                "parameters": [
+                    {
+                        "description": "创建SysDepartment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/autocode.SysDepartment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/deleteSysDepartment": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "删除SysDepartment",
+                "parameters": [
+                    {
+                        "description": "删除SysDepartment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/autocode.SysDepartment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/deleteSysDepartmentByIds": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "批量删除SysDepartment",
+                "parameters": [
+                    {
+                        "description": "批量删除SysDepartment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.IdsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"批量删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/findSysDepartment": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "用id查询SysDepartment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "parentId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "更新时间",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"查询成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/getSysDepartmentList": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "分页获取SysDepartment列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页大小",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "parentId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "更新时间",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/getSysDepartmentTree": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "分页获取SysDepartment列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页大小",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "parentId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "更新时间",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/SysDp/updateSysDepartment": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysDepartment"
+                ],
+                "summary": "更新SysDepartment",
+                "parameters": [
+                    {
+                        "description": "更新SysDepartment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/autocode.SysDepartment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"更新成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/createApi": {
             "post": {
                 "security": [
@@ -564,20 +1229,20 @@ var doc = `{
                 "summary": "删除回滚记录",
                 "parameters": [
                     {
-                        "description": "删除回滚记录",
+                        "description": "请求参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AutoHistoryByID"
+                            "$ref": "#/definitions/request.GetById"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"success\":true,\"data\":{},\"msg\":\"删除成功\"}",
+                        "description": "删除成功!",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -653,23 +1318,23 @@ var doc = `{
                 "tags": [
                     "AutoCode"
                 ],
-                "summary": "回滚",
+                "summary": "获取meta信息",
                 "parameters": [
                     {
-                        "description": "获取meta信息",
+                        "description": "请求参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AutoHistoryByID"
+                            "$ref": "#/definitions/request.GetById"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "description": "获取成功!",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -694,7 +1359,7 @@ var doc = `{
                 "summary": "查询回滚记录",
                 "parameters": [
                     {
-                        "description": "查询回滚记录",
+                        "description": "请求参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -705,9 +1370,9 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"success\":true,\"data\":{},\"msg\":\"获取成功\"}",
+                        "description": "获取成功!",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -794,23 +1459,23 @@ var doc = `{
                 "tags": [
                     "AutoCode"
                 ],
-                "summary": "回滚",
+                "summary": "回滚自动生成代码",
                 "parameters": [
                     {
-                        "description": "回滚自动生成代码",
+                        "description": "请求参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AutoHistoryByID"
+                            "$ref": "#/definitions/request.GetById"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"success\":true,\"data\":{},\"msg\":\"回滚成功\"}",
+                        "description": "回滚成功!",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1092,6 +1757,36 @@ var doc = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"登陆成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/base/oauth": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Base"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "用户名, 密码, 验证码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OAuth"
                         }
                     }
                 ],
@@ -3380,6 +4075,41 @@ var doc = `{
                 }
             }
         },
+        "/user/resetPassword": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysUser"
+                ],
+                "summary": "用户修改密码",
+                "parameters": [
+                    {
+                        "description": "ID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.SysUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"修改成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/setUserAuthorities": {
             "post": {
                 "security": [
@@ -3456,6 +4186,44 @@ var doc = `{
                 }
             }
         },
+        "/user/setUserDepartments": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysUser"
+                ],
+                "summary": "设置用户所属组织",
+                "parameters": [
+                    {
+                        "description": "用户UUID, 部门ID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SetUserDepartments"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"修改成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/setUserInfo": {
             "put": {
                 "security": [
@@ -3493,6 +4261,36 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/user/updateBasicInfo": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SysUser"
+                ],
+                "summary": "更新用户基本信息",
+                "parameters": [
+                    {
+                        "description": "用户名, 昵称, 密码, 角色ID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateUserBasicInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"注册成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -3509,6 +4307,61 @@ var doc = `{
                 },
                 "id": {
                     "description": "主键ID",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "autocode.AutoPosition": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "autocode.SysDepartment": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
                     "type": "integer"
                 },
                 "updatedAt": {
@@ -3584,6 +4437,40 @@ var doc = `{
                 }
             }
         },
+        "config.CORS": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "type": "string"
+                },
+                "whitelist": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/config.CORSWhitelist"
+                    }
+                }
+            }
+        },
+        "config.CORSWhitelist": {
+            "type": "object",
+            "properties": {
+                "allow-credentials": {
+                    "type": "boolean"
+                },
+                "allow-headers": {
+                    "type": "string"
+                },
+                "allow-methods": {
+                    "type": "string"
+                },
+                "allow-origin": {
+                    "type": "string"
+                },
+                "expose-headers": {
+                    "type": "string"
+                }
+            }
+        },
         "config.Captcha": {
             "type": "object",
             "properties": {
@@ -3606,6 +4493,59 @@ var doc = `{
             "properties": {
                 "modelPath": {
                     "description": "存放casbin模型的相对路径",
+                    "type": "string"
+                }
+            }
+        },
+        "config.DB": {
+            "type": "object",
+            "properties": {
+                "alias-name": {
+                    "type": "string"
+                },
+                "config": {
+                    "description": "高级配置",
+                    "type": "string"
+                },
+                "dbname": {
+                    "description": "数据库名",
+                    "type": "string"
+                },
+                "disable": {
+                    "type": "boolean"
+                },
+                "logMode": {
+                    "description": "是否开启Gorm全局日志",
+                    "type": "string"
+                },
+                "logZap": {
+                    "type": "boolean"
+                },
+                "maxIdleConns": {
+                    "description": "空闲中的最大连接数",
+                    "type": "integer"
+                },
+                "maxOpenConns": {
+                    "description": "打开到数据库的最大连接数",
+                    "type": "integer"
+                },
+                "password": {
+                    "description": "数据库密码",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "服务器地址:端口",
+                    "type": "string"
+                },
+                "port": {
+                    "description": ":端口",
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "username": {
+                    "description": "数据库用户名",
                     "type": "string"
                 }
             }
@@ -3668,6 +4608,26 @@ var doc = `{
                 }
             }
         },
+        "config.HuaWeiObs": {
+            "type": "object",
+            "properties": {
+                "accessKey": {
+                    "type": "string"
+                },
+                "bucket": {
+                    "type": "string"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "secretKey": {
+                    "type": "string"
+                }
+            }
+        },
         "config.JWT": {
             "type": "object",
             "properties": {
@@ -3678,6 +4638,10 @@ var doc = `{
                 "expiresTime": {
                     "description": "过期时间",
                     "type": "integer"
+                },
+                "issuer": {
+                    "description": "签发者",
+                    "type": "string"
                 },
                 "signingKey": {
                     "description": "jwt签名",
@@ -3726,7 +4690,56 @@ var doc = `{
                     "type": "string"
                 },
                 "path": {
+                    "description": "服务器地址",
+                    "type": "string"
+                },
+                "port": {
+                    "description": "端口",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "数据库用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "config.Pgsql": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "description": "高级配置",
+                    "type": "string"
+                },
+                "dbname": {
+                    "description": "数据库名",
+                    "type": "string"
+                },
+                "logMode": {
+                    "description": "是否开启Gorm全局日志",
+                    "type": "string"
+                },
+                "logZap": {
+                    "description": "是否通过zap写入日志文件",
+                    "type": "boolean"
+                },
+                "maxIdleConns": {
+                    "description": "空闲中的最大连接数",
+                    "type": "integer"
+                },
+                "maxOpenConns": {
+                    "description": "打开到数据库的最大连接数",
+                    "type": "integer"
+                },
+                "password": {
+                    "description": "数据库密码",
+                    "type": "string"
+                },
+                "path": {
                     "description": "服务器地址:端口",
+                    "type": "string"
+                },
+                "port": {
+                    "description": ":端口",
                     "type": "string"
                 },
                 "username": {
@@ -3801,11 +4814,24 @@ var doc = `{
                 "casbin": {
                     "$ref": "#/definitions/config.Casbin"
                 },
+                "cors": {
+                    "description": "跨域配置",
+                    "$ref": "#/definitions/config.CORS"
+                },
+                "db-list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/config.DB"
+                    }
+                },
                 "email": {
                     "$ref": "#/definitions/config.Email"
                 },
                 "excel": {
                     "$ref": "#/definitions/config.Excel"
+                },
+                "huaWeiObs": {
+                    "$ref": "#/definitions/config.HuaWeiObs"
                 },
                 "jwt": {
                     "$ref": "#/definitions/config.JWT"
@@ -3817,6 +4843,9 @@ var doc = `{
                 "mysql": {
                     "description": "gorm",
                     "$ref": "#/definitions/config.Mysql"
+                },
+                "pgsql": {
+                    "$ref": "#/definitions/config.Pgsql"
                 },
                 "qiniu": {
                     "$ref": "#/definitions/config.Qiniu"
@@ -3852,6 +4881,12 @@ var doc = `{
                 "env": {
                     "description": "环境值",
                     "type": "string"
+                },
+                "iplimitCount": {
+                    "type": "integer"
+                },
+                "iplimitTime": {
+                    "type": "integer"
                 },
                 "ossType": {
                     "description": "Oss类型",
@@ -3922,10 +4957,6 @@ var doc = `{
                 },
                 "level": {
                     "description": "级别",
-                    "type": "string"
-                },
-                "linkName": {
-                    "description": "软链接名称",
                     "type": "string"
                 },
                 "logInConsole": {
@@ -4046,14 +5077,6 @@ var doc = `{
                 }
             }
         },
-        "request.AutoHistoryByID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "request.CasbinInReceive": {
             "type": "object",
             "properties": {
@@ -4142,6 +5165,10 @@ var doc = `{
                     "description": "数据库名",
                     "type": "string"
                 },
+                "dbType": {
+                    "description": "数据库类型",
+                    "type": "string"
+                },
                 "host": {
                     "description": "服务器地址",
                     "type": "string"
@@ -4181,6 +5208,17 @@ var doc = `{
                 }
             }
         },
+        "request.OAuth": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                }
+            }
+        },
         "request.PageInfo": {
             "type": "object",
             "properties": {
@@ -4206,7 +5244,25 @@ var doc = `{
                         "type": "string"
                     }
                 },
+                "citizenNumber": {
+                    "type": "string"
+                },
+                "departmentIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "employeeID": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "integer"
+                },
                 "headerImg": {
+                    "type": "string"
+                },
+                "mobile": {
                     "type": "string"
                 },
                 "nickName": {
@@ -4214,6 +5270,15 @@ var doc = `{
                 },
                 "passWord": {
                     "type": "string"
+                },
+                "positionId": {
+                    "type": "integer"
+                },
+                "staffStatus": {
+                    "type": "integer"
+                },
+                "staffType": {
+                    "type": "integer"
                 },
                 "userName": {
                     "type": "string"
@@ -4293,6 +5358,21 @@ var doc = `{
                 }
             }
         },
+        "request.SetUserDepartments": {
+            "type": "object",
+            "properties": {
+                "departmentIds": {
+                    "description": "角色ID",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.SysAutoHistory": {
             "type": "object",
             "properties": {
@@ -4302,6 +5382,53 @@ var doc = `{
                 },
                 "pageSize": {
                     "description": "每页大小",
+                    "type": "integer"
+                }
+            }
+        },
+        "request.UpdateUserBasicInfo": {
+            "type": "object",
+            "properties": {
+                "authorityIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "citizenNumber": {
+                    "type": "string"
+                },
+                "departmentIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "employeeID": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "integer"
+                },
+                "headerImg": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nickName": {
+                    "type": "string"
+                },
+                "positionId": {
+                    "type": "integer"
+                },
+                "staffStatus": {
+                    "type": "integer"
+                },
+                "staffType": {
                     "type": "integer"
                 }
             }
@@ -4319,6 +5446,20 @@ var doc = `{
                 },
                 "to": {
                     "description": "邮件发送给谁",
+                    "type": "string"
+                }
+            }
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                },
+                "msg": {
                     "type": "string"
                 }
             }
@@ -4387,10 +5528,6 @@ var doc = `{
                 },
                 "comment": {
                     "description": "数据库字段描述",
-                    "type": "string"
-                },
-                "dataType": {
-                    "description": "数据库字段类型",
                     "type": "string"
                 },
                 "dataTypeLong": {
@@ -4777,9 +5914,24 @@ var doc = `{
                     "description": "基础颜色",
                     "type": "string"
                 },
+                "citizenNumber": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
+                },
+                "departments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.SysUserDepartment"
+                    }
+                },
+                "employeeID": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "integer"
                 },
                 "headerImg": {
                     "description": "用户头像",
@@ -4789,13 +5941,30 @@ var doc = `{
                     "description": "主键ID",
                     "type": "integer"
                 },
+                "mobile": {
+                    "type": "string"
+                },
                 "nickName": {
                     "description": "用户昵称",
                     "type": "string"
                 },
+                "position": {
+                    "$ref": "#/definitions/autocode.AutoPosition"
+                },
+                "positionId": {
+                    "type": "integer"
+                },
                 "sideMode": {
                     "description": "用户侧边主题",
                     "type": "string"
+                },
+                "staffStatus": {
+                    "description": "1 employed 在职, 2 unemployed 离职",
+                    "type": "integer"
+                },
+                "staffType": {
+                    "description": "1 regular 正式工,2 temporary 临时工,",
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "description": "更新时间",
@@ -4808,6 +5977,17 @@ var doc = `{
                 "uuid": {
                     "description": "用户UUID",
                     "type": "string"
+                }
+            }
+        },
+        "system.SysUserDepartment": {
+            "type": "object",
+            "properties": {
+                "sysDepartmentId": {
+                    "type": "integer"
+                },
+                "sysUserId": {
+                    "type": "integer"
                 }
             }
         },

@@ -13,3 +13,8 @@ type LoginResponse struct {
 	Token     string         `json:"token"`
 	ExpiresAt int64          `json:"expiresAt"`
 }
+
+type OauthResponse struct {
+	User      system.SysUser `json:"user"`
+	Token     string         `json:"token"`
+}
