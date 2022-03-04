@@ -9,6 +9,13 @@
             :props="{checkStrictly: true, label:'name',value:'id'}"
           />
         </el-form-item>
+        <el-form-item label="用户角色">
+          <el-cascader
+            v-model="searchInfo.authority"
+            :options="authOptions"
+            :props="{ checkStrictly: true,label:'authorityName',value:'authorityId'}"
+          />
+        </el-form-item>
         <el-form-item label="员工卡号">
           <el-input v-model="searchInfo.employeeID" placeholder="员工卡号" />
         </el-form-item>
@@ -345,14 +352,14 @@ export default {
   async created() {
     await this.loadStaffOptions()
     await this.getTableData()
-    console.log(this.tableData)
+    // console.log(this.tableData)
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
     const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list, dpRes.data.list)
     const positionRes = await getAutoPositionList({ page: 1, pageSize: 999 })
     if (positionRes.code === 0) {
       this.positions = positionRes.data.list
-      console.log(this.positions)
+      // console.log(this.positions)
     }
   },
   methods: {
@@ -413,7 +420,15 @@ export default {
         }
       }
 
-      console.log('search info:', this.searchInfo)
+      if (this.searchInfo !== undefined && this.searchInfo.authority !== undefined) {
+        // console.log('this.searchInfo.authority', this.searchInfo.authority)
+        if (this.searchInfo.authority.length > 0) {
+          var lastA = this.searchInfo.authority[this.searchInfo.authority.length - 1]
+          this.searchInfo.authorityId = lastA
+        }
+      }
+
+      // console.log('search info:', this.searchInfo)
 
       this.page = 1
       this.pageSize = 10

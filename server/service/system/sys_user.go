@@ -70,11 +70,11 @@ func (userService *UserService) Login(u *system.SysUser) (err error, userInter *
 	return err, &user
 }
 
-func (userService *UserService) Oauth(code string, state string)(err error, token string, userInter system.SysUser){
+func (userService *UserService) Oauth(code string, state string) (err error, token string, userInter system.SysUser) {
 	t, err := auth.GetOAuthToken(code, state)
 	if err != nil {
 		return
-	}else{
+	} else {
 		fmt.Printf("AccessToken:%s\n", t.AccessToken)
 	}
 	token = t.AccessToken
@@ -82,7 +82,7 @@ func (userService *UserService) Oauth(code string, state string)(err error, toke
 	claims, err := auth.ParseJwtToken(token)
 	if err != nil {
 		return
-	}else{
+	} else {
 		fmt.Printf("claims:%v\n", claims)
 	}
 
@@ -120,19 +120,27 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	}
 	//TODO: 搜索逻辑
 
-	if info.Username  != "" {
+	if info.Username != "" {
 		db = db.Where("sys_users.username = ?", info.Username)
 	}
 
-	if info.EmployeeID != ""{
+	if info.EmployeeID != "" {
 		db = db.Where("sys_users.employee_id = ?", info.EmployeeID)
 	}
 
-	if info.PositionId != 0{
+	if info.PositionId != 0 {
 		db = db.Where("sys_users.position_id", info.PositionId)
 	}
 
-	if info.DepartmentId != 0{
+	if info.PositionId != 0 {
+		db = db.Where("sys_users.position_id", info.PositionId)
+	}
+
+	if info.AuthorityId != ""{
+		db = db.Where("sys_users.authority_id", info.AuthorityId)
+	}
+
+	if info.DepartmentId != 0 {
 		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
 
 	}
