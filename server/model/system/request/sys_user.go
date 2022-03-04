@@ -24,7 +24,7 @@ type Register struct {
 }
 
 func (r Register) ToSysUser() system.SysUser {
-	return system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus,Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
+	return system.SysUser{Username: r.Username, PositionId: r.PositionId, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus, Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
 }
 
 // User register structure
@@ -44,7 +44,7 @@ type UpdateUserBasicInfo struct {
 }
 
 func (r UpdateUserBasicInfo) ToSysUser() system.SysUser {
-	return system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg, PositionId: r.PositionId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus,Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
+	return system.SysUser{NickName: r.NickName, HeaderImg: r.HeaderImg, PositionId: r.PositionId, EmployeeID: r.EmployeeID, StaffType: r.StaffType, StaffStatus: r.StaffStatus, Gender: r.Gender, Mobile: r.Mobile, CitizenNumber: r.CitizenNumber}
 }
 
 // User login structure
@@ -56,7 +56,7 @@ type Login struct {
 }
 
 type OAuth struct {
-	Code string `json:"code"`
+	Code  string `json:"code"`
 	State string `json:"state"`
 }
 
@@ -85,5 +85,11 @@ type SetUserDepartments struct {
 
 type UserSearch struct {
 	request.PageInfo
-	DepartmentId uint `json:"departmentId"`
+	EmployeeID   string `json:"employeeID"`
+	Username     string `json:"userName"`
+	DepartmentId uint   `json:"departmentId"`
+	PositionId   uint   `json:"positionId"`
+	AuthorityId  string `json:"authorityId" `
+	StaffType    uint   `json:"staffType"`
+	StaffStatus  uint   `json:"staffStatus"`
 }

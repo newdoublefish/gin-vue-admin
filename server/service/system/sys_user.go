@@ -1,17 +1,18 @@
 package system
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/casdoor/casdoor-go-sdk/auth"
-	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	"gorm.io/gorm/clause"
-
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -50,6 +51,8 @@ func (userService *UserService) Register(u system.SysUser) (err error, userInter
 		return err, userInter
 	}
 
+	userService.CacheSingleUserToRedis(u)
+
 	return err, u
 }
 
@@ -70,11 +73,11 @@ func (userService *UserService) Login(u *system.SysUser) (err error, userInter *
 	return err, &user
 }
 
-func (userService *UserService) Oauth(code string, state string)(err error, token string, userInter system.SysUser){
+func (userService *UserService) Oauth(code string, state string) (err error, token string, userInter system.SysUser) {
 	t, err := auth.GetOAuthToken(code, state)
 	if err != nil {
 		return
-	}else{
+	} else {
 		fmt.Printf("AccessToken:%s\n", t.AccessToken)
 	}
 	token = t.AccessToken
@@ -82,7 +85,7 @@ func (userService *UserService) Oauth(code string, state string)(err error, toke
 	claims, err := auth.ParseJwtToken(token)
 	if err != nil {
 		return
-	}else{
+	} else {
 		fmt.Printf("claims:%v\n", claims)
 	}
 
@@ -118,17 +121,48 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	if err != nil {
 		return
 	}
-	db = db.Limit(limit).Offset(offset).
-		Preload("Authorities").
-		Preload("Authority")
-	//if info.DepartmentId != 0{
-	//	db = db.Preload("Departments", "sys_department_id = ?", info.DepartmentId)
-	//}else{
-	//	db = db.Preload("Departments")
-	//}
 	//TODO: 搜索逻辑
+
+	if info.Username != "" {
+		db = db.Where("sys_users.username = ?", info.Username)
+	}
+
+	if info.EmployeeID != "" {
+		db = db.Where("sys_users.employee_id = ?", info.EmployeeID)
+	}
+
+	if info.PositionId != 0 {
+		db = db.Where("sys_users.position_id", info.PositionId)
+	}
+
+	if info.PositionId != 0 {
+		db = db.Where("sys_users.position_id", info.PositionId)
+	}
+
+	if info.AuthorityId != ""{
+		db = db.Where("sys_users.authority_id", info.AuthorityId)
+	}
+
+	if info.StaffStatus != 0 {
+		db = db.Where("sys_users.staff_status", info.StaffStatus)
+	}
+
+	if info.StaffType != 0 {
+		db = db.Where("sys_users.staff_type", info.StaffType)
+	}
+
+	if info.DepartmentId != 0 {
+		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
+
+	}
+
+
+
+	db = db.Limit(limit).Offset(offset)
 	db = db.Preload("Departments")
 	db = db.Preload("Position")
+	db = db.Preload("Authorities")
+	db = db.Preload("Authority")
 	err = db.Find(&userList).Error
 	return err, userList, total
 }
@@ -317,6 +351,46 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 			return err
 		}
 
+		userService.CacheSingleUserToRedis(user)
+
 		return nil
 	})
+}
+
+func (userService *UserService) CacheSingleUserToRedis(reqUser system.SysUser) {
+	var u system.SysUser
+	userMap := make(map[string]interface{})
+	if err := global.GVA_DB.Where("`uuid` = ?", reqUser.UUID).Preload("Authority").Preload("Departments").Preload("Position").Preload("Authorities").First(&u).Error; err == nil {
+		if data, err := json.Marshal(u); err == nil {
+			userMap[u.EmployeeID] = data
+		}
+	}
+	if len(userMap) > 0{
+		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	}
+}
+
+
+func (userService *UserService) CacheUsersToRedis() {
+	global.GVA_LOG.Info("start user sync task")
+	db := global.GVA_DB.Model(&system.SysUser{})
+	var userList []system.SysUser
+	db = db.Preload("Departments")
+	db = db.Preload("Position")
+	db = db.Preload("Authorities")
+	db = db.Preload("Authority")
+	err := db.Find(&userList).Error
+
+	userMap := make(map[string]interface{})
+	if err == nil{
+		for _, user:=range userList{
+			if data, err := json.Marshal(user); err == nil {
+				userMap[user.EmployeeID] = data
+			}
+		}
+	}
+	if len(userMap) > 0{
+		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	}
+
 }

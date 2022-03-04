@@ -2,12 +2,14 @@ package initialize
 
 import (
 	"context"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 )
+
+var userService  = service.ServiceGroupApp.SystemServiceGroup.UserService
 
 func Redis() {
 	redisCfg := global.GVA_CONFIG.Redis
@@ -23,4 +25,13 @@ func Redis() {
 		global.GVA_LOG.Info("redis connect ping response:", zap.String("pong", pong))
 		global.GVA_REDIS = client
 	}
+
+	go func() {
+		userService.CacheUsersToRedis()
+	}()
+
+	// 每1h再同步一次用户数据
+	global.GVA_Timer.AddTaskByFunc("userSync", "*/60  * * * *", func() {
+		userService.CacheUsersToRedis()
+	})
 }

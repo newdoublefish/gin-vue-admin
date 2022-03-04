@@ -9,6 +9,49 @@
             :props="{checkStrictly: true, label:'name',value:'id'}"
           />
         </el-form-item>
+        <el-form-item label="用户角色">
+          <el-cascader
+            v-model="searchInfo.authority"
+            :options="authOptions"
+            :props="{ checkStrictly: true,label:'authorityName',value:'authorityId'}"
+          />
+        </el-form-item>
+        <el-form-item label="员工卡号">
+          <el-input v-model="searchInfo.employeeID" placeholder="员工卡号" />
+        </el-form-item>
+        <el-form-item label="用户名">
+          <el-input v-model="searchInfo.userName" placeholder="用户名" />
+        </el-form-item>
+        <el-form-item label="岗位">
+          <el-select v-model="searchInfo.positionId" clearable placeholder="请选择">
+            <el-option
+              v-for="item in positions"
+              :key="item.ID"
+              :label="`${item.code}${item.name}`"
+              :value="item.ID"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户类型">
+          <el-select v-model="searchInfo.staffType" clearable placeholder="请选择">
+            <el-option
+              v-for="item in staffTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户状态">
+          <el-select v-model="searchInfo.staffStatus" clearable placeholder="请选择">
+            <el-option
+              v-for="item in staffStatusOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
@@ -329,13 +372,14 @@ export default {
   async created() {
     await this.loadStaffOptions()
     await this.getTableData()
-    console.log(this.tableData)
+    // console.log(this.tableData)
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
     const dpRes = await getSysDepartmentTree({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list, dpRes.data.list)
     const positionRes = await getAutoPositionList({ page: 1, pageSize: 999 })
     if (positionRes.code === 0) {
       this.positions = positionRes.data.list
+      // console.log(this.positions)
     }
   },
   methods: {
@@ -389,12 +433,22 @@ export default {
     },
     onSubmit() {
       if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
-        console.log(this.searchInfo.department.length)
+        // console.log('length', this.searchInfo.department.length)
         if (this.searchInfo.department.length > 0) {
-          var last = this.searchInfo.department.pop()
+          var last = this.searchInfo.department[this.searchInfo.department.length - 1]
           this.searchInfo.departmentId = last
         }
       }
+
+      if (this.searchInfo !== undefined && this.searchInfo.authority !== undefined) {
+        // console.log('this.searchInfo.authority', this.searchInfo.authority)
+        if (this.searchInfo.authority.length > 0) {
+          var lastA = this.searchInfo.authority[this.searchInfo.authority.length - 1]
+          this.searchInfo.authorityId = lastA
+        }
+      }
+
+      // console.log('search info:', this.searchInfo)
 
       this.page = 1
       this.pageSize = 10
@@ -600,32 +654,34 @@ export default {
       this.openDialog('edit')
     },
     async changeAuthority(row, flag) {
-      if (flag) {
-        return
-      }
-      this.$nextTick(async() => {
-        const res = await setUserAuthorities({
-          ID: row.ID,
-          authorityIds: row.authorityIds
-        })
-        if (res.code === 0) {
-          this.$message({ type: 'success', message: '角色设置成功' })
-        }
-      })
+      return
+      // if (flag) {
+      //   return
+      // }
+      // this.$nextTick(async() => {
+      //   const res = await setUserAuthorities({
+      //     ID: row.ID,
+      //     authorityIds: row.authorityIds
+      //   })
+      //   if (res.code === 0) {
+      //     this.$message({ type: 'success', message: '角色设置成功' })
+      //   }
+      // })
     },
     async changeDepartments(row, flag) {
-      if (flag) {
-        return
-      }
-      this.$nextTick(async() => {
-        const res = await setUserDepartments({
-          ID: row.ID,
-          departmentIds: row.departmentIds
-        })
-        if (res.code === 0) {
-          this.$message({ type: 'success', message: '组织设置成功' })
-        }
-      })
+      return
+      // if (flag) {
+      //   return
+      // }
+      // this.$nextTick(async() => {
+      //   const res = await setUserDepartments({
+      //     ID: row.ID,
+      //     departmentIds: row.departmentIds
+      //   })
+      //   if (res.code === 0) {
+      //     this.$message({ type: 'success', message: '组织设置成功' })
+      //   }
+      // })
     },
   }
 }
