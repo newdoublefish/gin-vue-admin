@@ -68,6 +68,13 @@
               @click="submitForm"
             >登 录</el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              style="width: 46%"
+              @click="casdoorLogin"
+            >统一认证</el-button>
+          </el-form-item>
         </el-form>
       </div>
       <div class="login_panle_right" />
@@ -171,6 +178,9 @@ export default {
           })
         }
       }
+    },
+    casdoorLogin() {
+      window.location.replace('http://10.0.0.69:8000/login/oauth/authorize?client_id=c68223c4e2195dbe987f&response_type=code&redirect_uri=http://127.0.0.1:8080&scope=read&state=casdoor')
     },
     async login() {
       return await this.LoginIn(this.loginForm)
