@@ -118,17 +118,25 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	if err != nil {
 		return
 	}
-	db = db.Limit(limit).Offset(offset).
-		Preload("Authorities").
-		Preload("Authority")
-	//if info.DepartmentId != 0{
-	//	db = db.Preload("Departments", "sys_department_id = ?", info.DepartmentId)
-	//}else{
-	//	db = db.Preload("Departments")
-	//}
 	//TODO: 搜索逻辑
+
+	if info.Username  != "" {
+		db = db.Where("sys_users.username = ?", info.Username)
+	}
+
+	if info.PositionId != 0{
+		db = db.Where("sys_users.position_id", info.PositionId)
+	}
+
+	if info.DepartmentId != 0{
+		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
+
+	}
+	db = db.Limit(limit).Offset(offset)
 	db = db.Preload("Departments")
 	db = db.Preload("Position")
+	db = db.Preload("Authorities")
+	db = db.Preload("Authority")
 	err = db.Find(&userList).Error
 	return err, userList, total
 }
