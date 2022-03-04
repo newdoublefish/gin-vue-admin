@@ -8,11 +8,11 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"strconv"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 var jwtService = service.ServiceGroupApp.SystemServiceGroup.JwtService
@@ -70,6 +70,7 @@ func CasdoorParse(c *gin.Context, token string) error {
 			cusClaims.Username = claims.Name
 			cusClaims.NickName = claims.DisplayName
 			cusClaims.AuthorityId = claims.Tag
+			cusClaims.UUID, _ = uuid.FromString(claims.Bio)
 			c.Set("claims", &cusClaims)
 			c.Next()
 		} else {

@@ -81,7 +81,7 @@ func (userService *UserService) Oauth(code string, state string)(err error, toke
 
 	claims, err := auth.ParseJwtToken(token)
 	if err != nil {
-		panic(err)
+		return
 	}else{
 		fmt.Printf("claims:%v\n", claims)
 	}

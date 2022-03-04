@@ -19,6 +19,7 @@ func CasdoorGetClaims(token string) (cusClaims *systemReq.CustomClaims, err erro
 			cusClaims.Username = claims.Name
 			cusClaims.NickName = claims.DisplayName
 			cusClaims.AuthorityId = claims.Tag
+			cusClaims.UUID, _ = uuid.FromString(claims.Bio)
 		}
 	}
 	return
