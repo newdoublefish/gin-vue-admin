@@ -1,17 +1,18 @@
 package system
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/casdoor/casdoor-go-sdk/auth"
-	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	"gorm.io/gorm/clause"
-
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -350,4 +351,29 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 
 		return nil
 	})
+}
+
+func (userService *UserService) CacheSingleUserToRedis(id uint) {
+
+}
+
+
+func (userService *UserService) CacheUsersToRedis() {
+	db := global.GVA_DB.Model(&system.SysUser{})
+	var userList []system.SysUser
+	db = db.Preload("Departments")
+	db = db.Preload("Position")
+	db = db.Preload("Authorities")
+	db = db.Preload("Authority")
+	err := db.Find(&userList).Error
+
+	userMap := make(map[string]interface{})
+	if err == nil{
+		for _, user:=range userList{
+			if data, err := json.Marshal(user); err == nil {
+				userMap[user.EmployeeID] = data
+			}
+		}
+	}
+	global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
 }
