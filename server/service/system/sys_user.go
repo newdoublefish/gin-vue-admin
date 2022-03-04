@@ -124,6 +124,10 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.username = ?", info.Username)
 	}
 
+	if info.EmployeeID != ""{
+		db = db.Where("sys_users.employee_id = ?", info.EmployeeID)
+	}
+
 	if info.PositionId != 0{
 		db = db.Where("sys_users.position_id", info.PositionId)
 	}

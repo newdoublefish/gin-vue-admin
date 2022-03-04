@@ -9,6 +9,22 @@
             :props="{checkStrictly: true, label:'name',value:'id'}"
           />
         </el-form-item>
+        <el-form-item label="员工卡号">
+          <el-input v-model="searchInfo.employeeID" placeholder="员工卡号" />
+        </el-form-item>
+        <el-form-item label="用户名">
+          <el-input v-model="searchInfo.userName" placeholder="用户名" />
+        </el-form-item>
+        <el-form-item label="岗位">
+          <el-select v-model="searchInfo.positionId" clearable placeholder="请选择">
+            <el-option
+              v-for="item in positions"
+              :key="item.ID"
+              :label="`${item.code}${item.name}`"
+              :value="item.ID"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
@@ -336,6 +352,7 @@ export default {
     const positionRes = await getAutoPositionList({ page: 1, pageSize: 999 })
     if (positionRes.code === 0) {
       this.positions = positionRes.data.list
+      console.log(this.positions)
     }
   },
   methods: {
@@ -389,12 +406,14 @@ export default {
     },
     onSubmit() {
       if (this.searchInfo !== undefined && this.searchInfo.department !== undefined) {
-        console.log(this.searchInfo.department.length)
+        // console.log('length', this.searchInfo.department.length)
         if (this.searchInfo.department.length > 0) {
-          var last = this.searchInfo.department.pop()
+          var last = this.searchInfo.department[this.searchInfo.department.length - 1]
           this.searchInfo.departmentId = last
         }
       }
+
+      console.log('search info:', this.searchInfo)
 
       this.page = 1
       this.pageSize = 10
