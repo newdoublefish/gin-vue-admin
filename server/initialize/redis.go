@@ -29,4 +29,9 @@ func Redis() {
 	go func() {
 		userService.CacheUsersToRedis()
 	}()
+
+	// 每1h再同步一次用户数据
+	global.GVA_Timer.AddTaskByFunc("userSync", "*/60  * * * *", func() {
+		userService.CacheUsersToRedis()
+	})
 }

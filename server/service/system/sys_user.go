@@ -51,6 +51,8 @@ func (userService *UserService) Register(u system.SysUser) (err error, userInter
 		return err, userInter
 	}
 
+	userService.CacheSingleUserToRedis(u)
+
 	return err, u
 }
 
@@ -349,16 +351,28 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 			return err
 		}
 
+		userService.CacheSingleUserToRedis(user)
+
 		return nil
 	})
 }
 
-func (userService *UserService) CacheSingleUserToRedis(id uint) {
-
+func (userService *UserService) CacheSingleUserToRedis(reqUser system.SysUser) {
+	var u system.SysUser
+	userMap := make(map[string]interface{})
+	if err := global.GVA_DB.Where("`uuid` = ?", reqUser.UUID).Preload("Authority").Preload("Departments").Preload("Position").Preload("Authorities").First(&u).Error; err == nil {
+		if data, err := json.Marshal(u); err == nil {
+			userMap[u.EmployeeID] = data
+		}
+	}
+	if len(userMap) > 0{
+		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	}
 }
 
 
 func (userService *UserService) CacheUsersToRedis() {
+	global.GVA_LOG.Info("start user sync task")
 	db := global.GVA_DB.Model(&system.SysUser{})
 	var userList []system.SysUser
 	db = db.Preload("Departments")
@@ -375,5 +389,8 @@ func (userService *UserService) CacheUsersToRedis() {
 			}
 		}
 	}
-	global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	if len(userMap) > 0{
+		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	}
+
 }
