@@ -139,7 +139,7 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.position_id", info.PositionId)
 	}
 
-	if info.AuthorityId != ""{
+	if info.AuthorityId != "" {
 		db = db.Where("sys_users.authority_id", info.AuthorityId)
 	}
 
@@ -155,8 +155,6 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
 
 	}
-
-
 
 	db = db.Limit(limit).Offset(offset)
 	db = db.Preload("Departments")
@@ -248,21 +246,73 @@ func (userService *UserService) SetUserDepartments(id uint, departmentIds []uint
 //@return: err error
 
 func (userService *UserService) DeleteUser(id float64) (err error) {
-	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-		var user system.SysUser
-		err = tx.Unscoped().Where("id = ?", id).Delete(&user).Error
-		if err != nil {
-			return err
-		}
-		err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-		if err != nil {
-			return err
-		}
-		err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
-		userService.DeleteCacheUser(user)
-		return err
-	})
+	//return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+	//	var user system.SysUser
+	//	err := tx.Unscoped().Where("id = ?", id).First(&user).Error
+	//	if err != nil {
+	//		return err
+	//	}
+	//	//err = tx.Unscoped().Delete(&user).Error
+	//	err = tx.Where("id = ?", id).Unscoped().Delete(&system.SysUser{}).Error
+	//	if err != nil {
+	//		return err
+	//	}
+	//	err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+	//	userService.DeleteCacheUser(user)
+	//	return err
+	//})
 
+	//var user system.SysUser
+	//tx := global.GVA_DB.Begin()
+	//defer func() {
+	//	if r := recover(); r != nil {
+	//		tx.Rollback()
+	//	}
+	//}()
+	//err = tx.Where("id = ?", id).First(&user).Error
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
+	//err = tx.Unscoped().Delete(&user).Error
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
+	//err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
+	//
+	//err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+	//userService.DeleteCacheUser(user)
+	//return tx.Commit().Error
+
+	var user system.SysUser
+	tx := global.GVA_DB
+	err = tx.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return err
+	}
+	//err = tx.Unscoped().Delete(&user).Error
+	err = tx.Unscoped().Where("id = ?", id).Delete(&system.SysUser{}).Error
+	if err != nil {
+		return err
+	}
+	err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+	if err != nil {
+		return err
+	}
+
+	err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+	userService.DeleteCacheUser(user)
+	return err
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -361,7 +411,7 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 	})
 }
 
-func (userService *UserService) DeleteCacheUser(reqUser system.SysUser){
+func (userService *UserService) DeleteCacheUser(reqUser system.SysUser) {
 	global.GVA_REDIS.HDel(context.Background(), "users", reqUser.EmployeeID)
 }
 
@@ -373,11 +423,10 @@ func (userService *UserService) CacheSingleUserToRedis(reqUser system.SysUser) {
 			userMap[u.EmployeeID] = data
 		}
 	}
-	if len(userMap) > 0{
-		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	if len(userMap) > 0 {
+		global.GVA_REDIS.HMSet(context.Background(), "users", userMap)
 	}
 }
-
 
 func (userService *UserService) CacheUsersToRedis() {
 	global.GVA_LOG.Info("start user sync task")
@@ -390,14 +439,14 @@ func (userService *UserService) CacheUsersToRedis() {
 	err := db.Find(&userList).Error
 
 	userMap := make(map[string]interface{})
-	if err == nil{
-		for _, user:=range userList{
+	if err == nil {
+		for _, user := range userList {
 			if data, err := json.Marshal(user); err == nil {
 				userMap[user.EmployeeID] = data
 			}
 		}
 	}
-	if len(userMap) > 0{
-		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
+	if len(userMap) > 0 {
+		global.GVA_REDIS.HMSet(context.Background(), "users", userMap)
 	}
 }
