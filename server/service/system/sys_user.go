@@ -248,17 +248,20 @@ func (userService *UserService) SetUserDepartments(id uint, departmentIds []uint
 //@return: err error
 
 func (userService *UserService) DeleteUser(id float64) (err error) {
-	var user system.SysUser
-	err = global.GVA_DB.Where("id = ?", id).Delete(&user).Error
-	if err != nil {
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var user system.SysUser
+		err = tx.Unscoped().Where("id = ?", id).Delete(&user).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
 		return err
-	}
-	err = global.GVA_DB.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-	if err != nil {
-		return err
-	}
-	err = global.GVA_DB.Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
-	return err
+	})
+
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -392,5 +395,4 @@ func (userService *UserService) CacheUsersToRedis() {
 	if len(userMap) > 0{
 		global.GVA_REDIS.HMSet(context.Background(),"users", userMap)
 	}
-
 }
