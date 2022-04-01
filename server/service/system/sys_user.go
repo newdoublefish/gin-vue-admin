@@ -259,6 +259,7 @@ func (userService *UserService) DeleteUser(id float64) (err error) {
 			return err
 		}
 		err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+		userService.DeleteCacheUser(user)
 		return err
 	})
 
@@ -358,6 +359,10 @@ func (userService *UserService) UpdateBasicInfo(r systemReq.UpdateUserBasicInfo)
 
 		return nil
 	})
+}
+
+func (userService *UserService) DeleteCacheUser(reqUser system.SysUser){
+	global.GVA_REDIS.HDel(context.Background(), "users", reqUser.EmployeeID)
 }
 
 func (userService *UserService) CacheSingleUserToRedis(reqUser system.SysUser) {
