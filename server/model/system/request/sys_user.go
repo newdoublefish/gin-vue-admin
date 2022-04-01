@@ -3,24 +3,25 @@ package request
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	utils "github.com/flipped-aurora/gin-vue-admin/server/utils/enums"
 )
 
 // User register structure
 type Register struct {
-	Username      string   `json:"userName"`
-	Password      string   `json:"passWord"`
-	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
-	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
-	AuthorityId   string   `json:"authorityId" gorm:"default:888"`
-	AuthorityIds  []string `json:"authorityIds"`
-	DepartmentIds []uint   `json:"departmentIds"`
-	PositionId    uint     `json:"positionId"`
-	EmployeeID    string   `json:"employeeID"`
-	StaffType     uint     `json:"staffType"`
-	StaffStatus   uint     `json:"staffStatus"`
-	Gender        uint     `json:"gender"`
-	Mobile        string   `json:"mobile"`
-	CitizenNumber string   `json:"citizenNumber"`
+	Username      string               `json:"userName"`
+	Password      string               `json:"passWord"`
+	NickName      string               `json:"nickName" gorm:"default:'QMPlusUser'"`
+	HeaderImg     string               `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
+	AuthorityId   string               `json:"authorityId" gorm:"default:888"`
+	AuthorityIds  []string             `json:"authorityIds"`
+	DepartmentIds []uint               `json:"departmentIds"`
+	PositionId    uint                 `json:"positionId"`
+	EmployeeID    string               `json:"employeeID"`
+	StaffType     *utils.StaffTypeEnum `json:"staffType"`
+	StaffStatus   uint                 `json:"staffStatus"`
+	Gender        uint                 `json:"gender"`
+	Mobile        string               `json:"mobile"`
+	CitizenNumber string               `json:"citizenNumber"`
 }
 
 func (r Register) ToSysUser() system.SysUser {
@@ -30,17 +31,17 @@ func (r Register) ToSysUser() system.SysUser {
 // User register structure
 type UpdateUserBasicInfo struct {
 	ID            uint
-	NickName      string   `json:"nickName" gorm:"default:'QMPlusUser'"`
-	HeaderImg     string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
-	AuthorityIds  []string `json:"authorityIds"`
-	DepartmentIds []uint   `json:"departmentIds"`
-	PositionId    uint     `json:"positionId"`
-	EmployeeID    string   `json:"employeeID"`
-	StaffType     uint     `json:"staffType"`
-	StaffStatus   uint     `json:"staffStatus"`
-	Gender        uint     `json:"gender"`
-	Mobile        string   `json:"mobile"`
-	CitizenNumber string   `json:"citizenNumber"`
+	NickName      string               `json:"nickName" gorm:"default:'QMPlusUser'"`
+	HeaderImg     string               `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
+	AuthorityIds  []string             `json:"authorityIds"`
+	DepartmentIds []uint               `json:"departmentIds"`
+	PositionId    uint                 `json:"positionId"`
+	EmployeeID    string               `json:"employeeID"`
+	StaffType     *utils.StaffTypeEnum `json:"staffType"`
+	StaffStatus   uint                 `json:"staffStatus"`
+	Gender        uint                 `json:"gender"`
+	Mobile        string               `json:"mobile"`
+	CitizenNumber string               `json:"citizenNumber"`
 }
 
 func (r UpdateUserBasicInfo) ToSysUser() system.SysUser {

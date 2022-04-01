@@ -3,6 +3,7 @@ package system
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+	utils "github.com/flipped-aurora/gin-vue-admin/server/utils/enums"
 	"github.com/satori/go.uuid"
 )
 
@@ -26,6 +27,6 @@ type SysUser struct {
 	Authorities   []SysAuthority        `json:"authorities" gorm:"many2many:sys_user_authority;"`
 	Departments   []SysUserDepartment   `json:"departments"`
 	Position      autocode.AutoPosition `json:"position"`
-	StaffType     uint                  `json:"staffType" gorm:"default:1;comment:用户类型"`   //1 regular 正式工,2 temporary 临时工,
+	StaffType     *utils.StaffTypeEnum   `json:"staffType" gorm:"default:1;comment:用户类型"`   //1 regular 正式工,2 temporary 临时工,
 	StaffStatus   uint                  `json:"staffStatus" gorm:"default:1;comment:用户状态"` //1 employed 在职, 2 unemployed 离职
 }
