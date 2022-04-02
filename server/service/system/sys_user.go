@@ -246,26 +246,26 @@ func (userService *UserService) SetUserDepartments(id uint, departmentIds []uint
 //@return: err error
 
 func (userService *UserService) DeleteUser(id float64) (err error) {
-	//return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
-	//	var user system.SysUser
-	//	err := tx.Unscoped().Where("id = ?", id).First(&user).Error
-	//	if err != nil {
-	//		return err
-	//	}
-	//	//err = tx.Unscoped().Delete(&user).Error
-	//	err = tx.Where("id = ?", id).Unscoped().Delete(&system.SysUser{}).Error
-	//	if err != nil {
-	//		return err
-	//	}
-	//	err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
-	//	userService.DeleteCacheUser(user)
-	//	return err
-	//})
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var user system.SysUser
+		err := tx.Unscoped().Where("id = ?", id).First(&user).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Unscoped().Delete(&user).Error
+		//err = tx.Where("id = ?", id).Unscoped().Delete(&system.SysUser{}).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
+		userService.DeleteCacheUser(user)
+		return err
+	})
 
 	//var user system.SysUser
 	//tx := global.GVA_DB.Begin()
@@ -294,24 +294,6 @@ func (userService *UserService) DeleteUser(id float64) (err error) {
 	//userService.DeleteCacheUser(user)
 	//return tx.Commit().Error
 
-	var user system.SysUser
-	tx := global.GVA_DB
-	err = tx.Where("id = ?", id).First(&user).Error
-	if err != nil {
-		return err
-	}
-	//err = tx.Unscoped().Delete(&user).Error
-	err = tx.Unscoped().Where("id = ?", id).Delete(&system.SysUser{}).Error
-	if err != nil {
-		return err
-	}
-	err = tx.Unscoped().Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-	if err != nil {
-		return err
-	}
-
-	err = tx.Unscoped().Delete(&[]system.SysUserDepartment{}, "sys_user_id = ?", id).Error
-	userService.DeleteCacheUser(user)
 	return err
 }
 
