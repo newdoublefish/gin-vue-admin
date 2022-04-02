@@ -3,8 +3,8 @@ package autocode
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 )
 
 type AutoPositionService struct {
@@ -20,14 +20,14 @@ func (PositionService *AutoPositionService) CreateAutoPosition(Position autocode
 // DeleteAutoPosition 删除AutoPosition记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (PositionService *AutoPositionService)DeleteAutoPosition(Position autocode.AutoPosition) (err error) {
-	err = global.GVA_DB.Delete(&Position).Error
+	err = global.GVA_DB.Unscoped().Delete(&Position).Error
 	return err
 }
 
 // DeleteAutoPositionByIds 批量删除AutoPosition记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (PositionService *AutoPositionService)DeleteAutoPositionByIds(ids request.IdsReq) (err error) {
-	err = global.GVA_DB.Delete(&[]autocode.AutoPosition{},"id in ?",ids.Ids).Error
+	err = global.GVA_DB.Unscoped().Delete(&[]autocode.AutoPosition{},"id in ?",ids.Ids).Error
 	return err
 }
 
