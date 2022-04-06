@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"github.com/casdoor/casdoor-go-sdk/auth"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/attendant"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	utils2 "github.com/flipped-aurora/gin-vue-admin/server/utils/enums"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -221,12 +224,14 @@ func (userService *UserService) UpdateDepartments(tx *gorm.DB, id uint, departme
 		return TxErr
 	}
 	userDepartments := []system.SysUserDepartment{}
-	for _, v := range departmentIds {
-		userDepartments = append(userDepartments, system.SysUserDepartment{
-			id, v,
-		})
+	if len(departmentIds) > 0{
+		for _, v := range departmentIds {
+			userDepartments = append(userDepartments, system.SysUserDepartment{
+				id, v,
+			})
+		}
+		TxErr = tx.Create(&userDepartments).Error
 	}
-	TxErr = tx.Create(&userDepartments).Error
 	if TxErr != nil {
 		return TxErr
 	}
@@ -434,5 +439,40 @@ func (userService *UserService) CacheUsersToRedis() {
 }
 
 func (userService *UserService) SyncUsersFromAttendantSystem(){
+	var Hes []attendant.HrEmployee
+	err := global.GVA_ATTENDANT.Find(&Hes).Error
+	if err!=nil{
 
+	}
+
+	for _, emp := range Hes{
+		var user system.SysUser
+		err = global.GVA_DB.Model(&system.SysUser{}).Where("origin_type = ? and origin_code = ?", utils2.OriginTypeAttendance, emp.EmplID).First(&user).Error
+		if err!=nil{
+			// 未找到,需要新建
+			user = system.SysUser{}
+			user.Password = utils.MD5V([]byte("123456"))
+			user.UUID = uuid.NewV4()
+			t := utils2.OriginTypeAttendance
+			user.OriginType = &t
+			user.OriginCode = emp.EmplID
+			user.EmployeeID = fmt.Sprintf("10000%s", strings.TrimSpace(emp.CardID))
+			user.CreatedAt = emp.EntryDate
+			user.NickName = emp.EmplName
+			user.Username = user.EmployeeID
+			user.Gender = emp.Sex
+			user.AuthorityId = "888"
+
+			var authorities []system.SysAuthority
+			authorities = append(authorities, system.SysAuthority{
+				AuthorityId: user.AuthorityId,
+			})
+
+			user.Authorities = authorities
+			err = global.GVA_DB.Create(&user).Error
+			break
+		}
+
+
+	}
 }
