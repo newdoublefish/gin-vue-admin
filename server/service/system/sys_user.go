@@ -432,3 +432,7 @@ func (userService *UserService) CacheUsersToRedis() {
 		global.GVA_REDIS.HMSet(context.Background(), "users", userMap)
 	}
 }
+
+func (userService *UserService) SyncUsersFromAttendantSystem(){
+
+}

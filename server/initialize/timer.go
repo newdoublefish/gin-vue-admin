@@ -22,5 +22,11 @@ func Timer() {
 		}
 	}
 
+	// 半夜统计一次, 时间 0 0 10,14,16 * * ?
+	//global.GVA_Timer.AddTaskByFunc("statistic", "0 39 13 2 4 ? 2022", func() {
+	//	// global.GVA_Timer.AddTaskByFunc("statistic", "0 12 * * ?", func() {
+	//	//service.Statistic(5)
+	//	fmt.Println("execute ------------------")
+	//})
 
 }

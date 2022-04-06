@@ -31,6 +31,11 @@ services:
     restart: always
     ports:
       - '8888:8888'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro  
+    environment:
+      - ATTENDANT_DB=sqlserver://sa:dns.com.hk.2011@10.0.0.9?database=powinkq&encrypt=disable
     depends_on:
       - mysql
       - redis

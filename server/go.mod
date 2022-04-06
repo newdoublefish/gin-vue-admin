@@ -41,6 +41,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gorm.io/driver/mysql v1.0.1
 	gorm.io/driver/postgres v0.2.6
+	gorm.io/driver/sqlserver v0.2.4 // indirect
 	gorm.io/gorm v1.20.11
 	nhooyr.io/websocket v1.8.6
 )
