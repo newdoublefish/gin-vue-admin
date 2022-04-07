@@ -472,7 +472,12 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 			user.CreatedAt = emp.EntryDate
 			user.NickName = emp.EmplName
 			user.Username = user.EmployeeID
-			user.Gender = emp.Sex
+			if emp.Sex == "false"{
+				user.Gender = 1
+			}else{
+				user.Gender = 2
+			}
+
 			user.AuthorityId = "888"
 
 			var authorities []system.SysAuthority

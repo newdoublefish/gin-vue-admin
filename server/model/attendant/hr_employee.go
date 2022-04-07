@@ -8,7 +8,7 @@ type HrEmployee struct {
 	CardID string `json:"CardID"`
 	DeptID string `json:"DeptID"`
 	EmplName string `json:"EmplName"`
-	Sex uint `json:"Sex"`
+	Sex string `json:"Sex"`
 	EntryDate time.Time `json:"EntryDate"`
 }
 
