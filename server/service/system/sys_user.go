@@ -10,6 +10,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/attendant"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	utils2 "github.com/flipped-aurora/gin-vue-admin/server/utils/enums"
 	uuid "github.com/satori/go.uuid"
@@ -120,6 +121,7 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&system.SysUser{})
 	var userList []system.SysUser
+	var responseList []response.SysUserListResponse
 	err = db.Count(&total).Error
 	if err != nil {
 		return
@@ -159,13 +161,23 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 
 	}
 
+	db.Select("sys_users.*")
+
 	db = db.Limit(limit).Offset(offset)
 	db = db.Preload("Departments")
 	db = db.Preload("Position")
 	db = db.Preload("Authorities")
 	db = db.Preload("Authority")
 	err = db.Find(&userList).Error
-	return err, userList, total
+
+	for index, asb := range userList{
+		var re response.SysUserListResponse
+		re.SysUser = userList[index]
+		re.OriginTypeStr = asb.OriginType.String()
+		responseList = append(responseList, re)
+	}
+
+	return err, responseList, total
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -472,7 +484,5 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 			err = global.GVA_DB.Create(&user).Error
 			break
 		}
-
-
 	}
 }

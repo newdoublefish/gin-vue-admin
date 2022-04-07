@@ -122,6 +122,16 @@
             {{ scope.row.position.name }}
           </template>
         </el-table-column>
+        <el-table-column align="left" label="用户来源" min-width="150">
+          <template #default="scope">
+            {{ scope.row.originTypeStr }}
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="来源用户号" min-width="150">
+          <template #default="scope">
+            {{ scope.row.originCode }}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="操作" min-width="200">
           <template #default="scope">
             <el-button type="text" icon="magic-stick" size="mini" @click="editUserBasicInfo(scope.row)">编辑用户</el-button>

@@ -8,6 +8,11 @@ type SysUserResponse struct {
 	User system.SysUser `json:"user"`
 }
 
+type SysUserListResponse struct {
+	system.SysUser
+	OriginTypeStr string `json:"originTypeStr"`
+}
+
 type LoginResponse struct {
 	User      system.SysUser `json:"user"`
 	Token     string         `json:"token"`

@@ -29,6 +29,6 @@ type SysUser struct {
 	Position      autocode.AutoPosition  `json:"position"`
 	StaffType     *utils.StaffTypeEnum   `json:"staffType" gorm:"default:1;comment:用户类型"`   //1 regular 正式工,2 temporary 临时工,
 	StaffStatus   *utils.StaffStatusEnum `json:"staffStatus" gorm:"default:1;comment:用户状态"` //1 employed 在职, 2 unemployed 离职
-	OriginType    *utils.OriginTypeEnum  `json:"OriginType" gorm:"default:1;comment:用户来源"`  //1 内部  2 考勤 3 erp
-	OriginCode    string                 `json:"OriginCode" gorm:"comment:来源用户编号"`
+	OriginType    *utils.OriginTypeEnum  `json:"originType" gorm:"default:1;comment:用户来源"`  //1 内部  2 考勤 3 erp
+	OriginCode    string                 `json:"originCode" gorm:"comment:来源用户编号"`
 }
