@@ -93,4 +93,5 @@ type UserSearch struct {
 	AuthorityId  string `json:"authorityId" `
 	StaffType    uint   `json:"staffType"`
 	StaffStatus  uint   `json:"staffStatus"`
+	OriginType   uint  `json:"originType"`  //1 内部  2 考勤 3 erp
 }

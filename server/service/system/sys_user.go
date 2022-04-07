@@ -132,6 +132,10 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.username = ?", info.Username)
 	}
 
+	if info.OriginType !=0{
+		db = db.Where("sys_users.origin_type = ?", info.OriginType)
+	}
+
 	if info.EmployeeID != "" {
 		db = db.Where("sys_users.employee_id = ?", info.EmployeeID)
 	}
@@ -160,6 +164,8 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
 
 	}
+
+
 
 	db.Select("sys_users.*")
 

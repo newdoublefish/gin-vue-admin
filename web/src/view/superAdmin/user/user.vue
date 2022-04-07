@@ -9,6 +9,11 @@
             :props="{checkStrictly: true, label:'name',value:'id'}"
           />
         </el-form-item>
+        <el-form-item label="用户来源">
+          <el-select v-model="searchInfo.originType" placeholder="状态" clearable class="filter-item" style="width: 130px">
+            <el-option v-for="item in OriginType" :key="item.key" :label="item.display_name" :value="item.key" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="用户角色">
           <el-cascader
             v-model="searchInfo.authority"
@@ -300,12 +305,20 @@ import CustomPic from '@/components/customPic/index.vue'
 import ChooseImg from '@/components/chooseImg/index.vue'
 import warningBar from '@/components/warningBar/warningBar.vue'
 import { setUserInfo, resetPassword } from '@/api/user.js'
+
+const OriginType = [
+  { key: 1, display_name: '内部' },
+  { key: 2, display_name: '考勤' },
+  { key: 3, display_name: 'ERP' }
+]
+
 export default {
   name: 'Api',
   components: { CustomPic, ChooseImg, warningBar },
   mixins: [infoList],
   data() {
     return {
+      OriginType,
       dialogTitle: '新增Api',
       dialogType: 'addUser',
       listApi: getUserList,

@@ -10,12 +10,12 @@ func _() {
 	var x [1]struct{}
 	_ = x[OriginTypeBuildIn-1]
 	_ = x[OriginTypeAttendance-2]
-	_ = x[OriginTypeErp-2]
+	_ = x[OriginTypeErp-3]
 }
 
-const _OriginTypeEnum_name = "内部考勤"
+const _OriginTypeEnum_name = "内部考勤erp"
 
-var _OriginTypeEnum_index = [...]uint8{0, 6, 12}
+var _OriginTypeEnum_index = [...]uint8{0, 6, 12, 15}
 
 func (i OriginTypeEnum) String() string {
 	i -= 1
