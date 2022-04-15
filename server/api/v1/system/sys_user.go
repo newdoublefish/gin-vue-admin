@@ -53,14 +53,14 @@ func (b *BaseApi) Oauth(c *gin.Context) {
 	var o systemReq.OAuth
 	_ = c.ShouldBindJSON(&o)
 
-	err,token, user:=userService.Oauth(o.Code, o.State)
-	if err!=nil{
-			response.FailWithMessage(err.Error(), c)
-			return
-	}else{
+	err, token, user := userService.Oauth(o.Code, o.State)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	} else {
 		response.OkWithDetailed(systemRes.OauthResponse{
-			User: user,
-			Token:     token,
+			User:  user,
+			Token: token,
 		}, "成功", c)
 		return
 	}
@@ -406,5 +406,23 @@ func (b *BaseApi) ResetPassword(c *gin.Context) {
 		response.FailWithMessage("重置失败"+err.Error(), c)
 	} else {
 		response.OkWithMessage("重置成功", c)
+	}
+}
+
+// @Tags Attendant
+// @Summary 获取用户某日考勤时间
+// @Security ApiKeyAuth
+// @Produce  application/json
+// @Param data body systemReq.UserAttendantQuery true "ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /attendant/getUserAttendant [post]
+func (b *BaseApi) GetUserAttendant(c *gin.Context) {
+	var query systemReq.UserAttendantQuery
+	_ = c.ShouldBindJSON(&query)
+	if attendant, err := userService.GetUserAttendant(query); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败"+err.Error(), c)
+	} else {
+		response.OkWithDetailed(gin.H{"attendant": attendant}, "获取成功", c)
 	}
 }

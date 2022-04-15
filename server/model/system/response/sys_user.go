@@ -23,3 +23,10 @@ type OauthResponse struct {
 	User      system.SysUser `json:"user"`
 	Token     string         `json:"token"`
 }
+
+type UserAttendantResponse struct {
+	Code string `json:"code"`
+	Date string `json:"date"`
+	ClockIn string `json:"clockIn"`
+	ClockOut string `json:"clockOut"`
+}

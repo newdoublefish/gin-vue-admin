@@ -944,6 +944,41 @@ var doc = `{
                 }
             }
         },
+        "/attendant/getUserAttendant": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendant"
+                ],
+                "summary": "获取用户某日考勤时间",
+                "parameters": [
+                    {
+                        "description": "ID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserAttendantQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"修改成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/authority/copyAuthority": {
             "post": {
                 "security": [
@@ -4658,6 +4693,23 @@ var doc = `{
                 }
             }
         },
+        "config.MinioOSS": {
+            "type": "object",
+            "properties": {
+                "accessKeyId": {
+                    "type": "string"
+                },
+                "accessKeySecret": {
+                    "type": "string"
+                },
+                "bucketName": {
+                    "type": "string"
+                },
+                "endpoint": {
+                    "type": "string"
+                }
+            }
+        },
         "config.Mysql": {
             "type": "object",
             "properties": {
@@ -4839,6 +4891,9 @@ var doc = `{
                 "local": {
                     "description": "oss",
                     "$ref": "#/definitions/config.Local"
+                },
+                "minioOSS": {
+                    "$ref": "#/definitions/config.MinioOSS"
                 },
                 "mysql": {
                     "description": "gorm",
@@ -5433,6 +5488,17 @@ var doc = `{
                 }
             }
         },
+        "request.UserAttendantQuery": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Email": {
             "type": "object",
             "properties": {
@@ -5947,6 +6013,13 @@ var doc = `{
                 "nickName": {
                     "description": "用户昵称",
                     "type": "string"
+                },
+                "originCode": {
+                    "type": "string"
+                },
+                "originType": {
+                    "description": "1 内部  2 考勤 3 erp",
+                    "type": "integer"
                 },
                 "position": {
                     "$ref": "#/definitions/autocode.AutoPosition"

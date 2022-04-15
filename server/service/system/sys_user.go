@@ -124,20 +124,18 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	var userList []system.SysUser
 	var responseList []response.SysUserListResponse
 
-
-
 	//TODO: 搜索逻辑
 
 	if info.Username != "" {
 		db = db.Where("sys_users.username = ?", info.Username)
 	}
 
-	if info.OriginType !=0{
+	if info.OriginType != 0 {
 		db = db.Where("sys_users.origin_type = ?", info.OriginType)
 	}
 
-	if info.NickName != ""{
-		db = db.Where("sys_users.nick_name like ?", "%"+ info.NickName+"%")
+	if info.NickName != "" {
+		db = db.Where("sys_users.nick_name like ?", "%"+info.NickName+"%")
 
 	}
 
@@ -165,8 +163,6 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.staff_type", info.StaffType)
 	}
 
-
-
 	if info.DepartmentId != 0 {
 		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
 	}
@@ -185,7 +181,7 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	db = db.Preload("Authority")
 	err = db.Find(&userList).Error
 
-	for index, asb := range userList{
+	for index, asb := range userList {
 		var re response.SysUserListResponse
 		re.SysUser = userList[index]
 		re.OriginTypeStr = asb.OriginType.String()
@@ -251,7 +247,7 @@ func (userService *UserService) UpdateDepartments(tx *gorm.DB, id uint, departme
 		return TxErr
 	}
 	userDepartments := []system.SysUserDepartment{}
-	if len(departmentIds) > 0{
+	if len(departmentIds) > 0 {
 		for _, v := range departmentIds {
 			userDepartments = append(userDepartments, system.SysUserDepartment{
 				id, v,
@@ -465,7 +461,6 @@ func (userService *UserService) CacheUsersToRedis() {
 	}
 }
 
-
 //var tempAttendantSyncRestrictMap map[string]string
 //
 //func init()  {
@@ -478,20 +473,20 @@ func (userService *UserService) CacheUsersToRedis() {
 //}
 
 // SyncUsersFromAttendantSystem 从考勤系统中同步用户
-func (userService *UserService) SyncUsersFromAttendantSystem(){
+func (userService *UserService) SyncUsersFromAttendantSystem() {
 	var Hes []attendant.HrEmployee
 	err := global.GVA_ATTENDANT.Find(&Hes).Error
-	if err!=nil{
+	if err != nil {
 
 	}
 
 	employeeMap := make(map[string]string)
 
-	for _, emp := range Hes{
+	for _, emp := range Hes {
 		var user system.SysUser
 		employeeMap[emp.EmplID] = emp.EmplID
 		err = global.GVA_DB.Model(&system.SysUser{}).Where("origin_type = ? and origin_code = ?", utils2.OriginTypeAttendance, emp.EmplID).First(&user).Error
-		if err!=nil{
+		if err != nil {
 			// 未找到,需要新建
 			user = system.SysUser{}
 			user.Password = utils.MD5V([]byte("123456"))
@@ -511,10 +506,10 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 			sType := utils2.StaffStatusEmployed
 			user.StaffStatus = &sType
 
-			if emp.Sex == "false"{
+			if emp.Sex == "false" {
 				user.Gender = 1
 				user.HeaderImg = "http://10.0.0.33:9000/users/man.png"
-			}else{
+			} else {
 				user.Gender = 2
 				user.HeaderImg = "http://10.0.0.33:9000/users/girl.png"
 			}
@@ -539,11 +534,52 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 	if err == nil {
 		for _, user := range userList {
 			// 如果不在考勤系统中，则更新为离岗
-			if _, ok := employeeMap["foo"]; !ok{
+			if _, ok := employeeMap["foo"]; !ok {
 				status := utils2.StaffStatusUnEmployed
 				user.StaffStatus = &status
 				global.GVA_DB.Updates(user)
 			}
 		}
 	}
+}
+
+func (userService *UserService) GetUserAttendant(query systemReq.UserAttendantQuery) (*response.UserAttendantResponse, error) {
+	if query.Date == "" {
+		return nil, errors.New("日期不能为空")
+	}
+
+	if query.Code == "" {
+		return nil, errors.New("用户卡号不能为空")
+	}
+
+	var sysUser system.SysUser
+	if err := global.GVA_DB.Model(&system.SysUser{}).Where("employee_id = ?", query.Code).First(&sysUser).Error; err != nil {
+		return nil, err
+	}
+
+	if sysUser.OriginType==nil ||  *sysUser.OriginType != utils2.OriginTypeAttendance{
+		return nil, errors.New("用户来源非erp系统")
+	}
+
+	var records []attendant.HrAttendantRecord
+	db := global.GVA_ATTENDANT.Model(&attendant.HrAttendantRecord{})
+	err := db.Where("EmplID = ? and RecDate = ?", sysUser.OriginCode, query.Date).Find(&records).Error
+	if err!=nil{
+		return nil, err
+	}
+	reLen := len(records)
+	userAttendant := response.UserAttendantResponse{
+		Code: query.Code,
+		Date: query.Date,
+	}
+	if reLen > 0{
+		userAttendant.ClockIn = fmt.Sprintf("%s %s", records[0].RecDate, records[0].RecTime)
+		if len(records) > 1{
+
+			userAttendant.ClockOut = fmt.Sprintf("%s %s", records[reLen-1].RecDate, records[reLen-1].RecTime)
+		}
+	}else{
+		return nil, errors.New("无记录")
+	}
+	return &userAttendant, nil
 }

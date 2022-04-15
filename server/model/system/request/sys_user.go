@@ -96,3 +96,8 @@ type UserSearch struct {
 	StaffStatus  uint   `json:"staffStatus"`
 	OriginType   uint  `json:"originType"`  //1 内部  2 考勤 3 erp
 }
+
+type UserAttendantQuery struct {
+	Code string `json:"code"`
+	Date string `json:"date"`
+}

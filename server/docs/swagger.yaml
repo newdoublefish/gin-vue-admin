@@ -250,6 +250,17 @@ definitions:
         description: 本地文件路径
         type: string
     type: object
+  config.MinioOSS:
+    properties:
+      accessKeyId:
+        type: string
+      accessKeySecret:
+        type: string
+      bucketName:
+        type: string
+      endpoint:
+        type: string
+    type: object
   config.Mysql:
     properties:
       config:
@@ -381,6 +392,8 @@ definitions:
       local:
         $ref: '#/definitions/config.Local'
         description: oss
+      minioOSS:
+        $ref: '#/definitions/config.MinioOSS'
       mysql:
         $ref: '#/definitions/config.Mysql'
         description: gorm
@@ -791,6 +804,13 @@ definitions:
       staffType:
         type: integer
     type: object
+  request.UserAttendantQuery:
+    properties:
+      code:
+        type: string
+      date:
+        type: string
+    type: object
   response.Email:
     properties:
       body:
@@ -1160,6 +1180,11 @@ definitions:
       nickName:
         description: 用户昵称
         type: string
+      originCode:
+        type: string
+      originType:
+        description: 1 内部  2 考勤 3 erp
+        type: integer
       position:
         $ref: '#/definitions/autocode.AutoPosition'
       positionId:
@@ -1762,6 +1787,27 @@ paths:
       summary: 创建基础api
       tags:
       - SysApi
+  /attendant/getUserAttendant:
+    post:
+      parameters:
+      - description: ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserAttendantQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"修改成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户某日考勤时间
+      tags:
+      - Attendant
   /authority/copyAuthority:
     post:
       consumes:
