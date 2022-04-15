@@ -456,6 +456,19 @@ func (userService *UserService) CacheUsersToRedis() {
 	}
 }
 
+
+//var tempAttendantSyncRestrictMap map[string]string
+//
+//func init()  {
+//	tempAttendantSyncRestrictMap = map[string]string{
+//		"00000085":"00000085", // 肖红梅
+//		"00000054":"00000054", // 易香林
+//		"":""
+//
+//	}
+//}
+
+// SyncUsersFromAttendantSystem 从考勤系统中同步用户
 func (userService *UserService) SyncUsersFromAttendantSystem(){
 	var Hes []attendant.HrEmployee
 	err := global.GVA_ATTENDANT.Find(&Hes).Error
