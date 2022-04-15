@@ -88,6 +88,7 @@ type UserSearch struct {
 	request.PageInfo
 	EmployeeID   string `json:"employeeID"`
 	Username     string `json:"userName"`
+	NickName     string `json:"nickName"`
 	DepartmentId uint   `json:"departmentId"`
 	PositionId   uint   `json:"positionId"`
 	AuthorityId  string `json:"authorityId" `

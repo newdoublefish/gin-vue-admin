@@ -27,6 +27,6 @@ func Timer() {
 	//	//service.Statistic(5)
 	//	fmt.Println("execute ------------------")
 	//})
-	us := userService
-	us.SyncUsersFromAttendantSystem()
+	//us := userService
+	//us.SyncUsersFromAttendantSystem()
 }

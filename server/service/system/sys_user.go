@@ -137,6 +137,11 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.origin_type = ?", info.OriginType)
 	}
 
+	if info.NickName != ""{
+		db = db.Where("sys_users.nick_name like ?", "%"+ info.NickName+"%")
+
+	}
+
 	if info.EmployeeID != "" {
 		db = db.Where("sys_users.employee_id = ?", info.EmployeeID)
 	}

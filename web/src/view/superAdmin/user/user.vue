@@ -24,8 +24,8 @@
         <el-form-item label="员工卡号">
           <el-input v-model="searchInfo.employeeID" placeholder="员工卡号" />
         </el-form-item>
-        <el-form-item label="用户名">
-          <el-input v-model="searchInfo.userName" placeholder="用户名" />
+        <el-form-item label="用户姓名">
+          <el-input v-model="searchInfo.nickName" placeholder="用户姓名" />
         </el-form-item>
         <el-form-item label="岗位">
           <el-select v-model="searchInfo.positionId" clearable placeholder="请选择">
