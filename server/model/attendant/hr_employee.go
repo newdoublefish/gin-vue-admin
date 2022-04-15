@@ -17,7 +17,7 @@ func (he *HrEmployee) TableName() string {
 }
 
 type HrAttendantRecord struct {
-	SerialID uint   `json:"SerialID"`
+	SerialID string `json:"SerialID"`
 	EmplID   string `json:"EmplID"`
 	RecDate  string `json:"RecDate"`
 	RecTime  string `json:"RecTime"`
