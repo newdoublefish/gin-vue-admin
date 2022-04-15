@@ -123,10 +123,9 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 	db := global.GVA_DB.Model(&system.SysUser{})
 	var userList []system.SysUser
 	var responseList []response.SysUserListResponse
-	err = db.Count(&total).Error
-	if err != nil {
-		return
-	}
+
+
+
 	//TODO: 搜索逻辑
 
 	if info.Username != "" {
@@ -166,12 +165,16 @@ func (userService *UserService) GetUserInfoList(info systemReq.UserSearch) (err 
 		db = db.Where("sys_users.staff_type", info.StaffType)
 	}
 
+
+
 	if info.DepartmentId != 0 {
 		db = db.Select("sys_users.*, sys_user_department.sys_department_id as sys_department_id").Joins("left join sys_user_department on sys_user_department.sys_user_id = sys_users.id ").Where("sys_department_id = ?", info.DepartmentId)
-
 	}
 
-
+	err = db.Offset(-1).Count(&total).Error
+	if err != nil {
+		return
+	}
 
 	db.Select("sys_users.*")
 
