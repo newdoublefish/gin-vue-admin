@@ -29,6 +29,8 @@ func NewOss() OSS {
 		return &AliyunOSS{}
 	case "huawei-obs":
 		return HuaWeiObs
+	case "minio-oss":
+		return &MinioOss{}
 	default:
 		return &Local{}
 	}

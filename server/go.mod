@@ -19,6 +19,7 @@ require (
 	github.com/gookit/color v1.3.1
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.8+incompatible
 	github.com/jordan-wright/email v0.0.0-20200824153738-3f5bafa1cd84
+	github.com/minio/minio-go/v7 v7.0.24
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/pkg/errors v0.9.1
@@ -41,7 +42,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gorm.io/driver/mysql v1.0.1
 	gorm.io/driver/postgres v0.2.6
-	gorm.io/driver/sqlserver v0.2.4 // indirect
+	gorm.io/driver/sqlserver v0.2.4
 	gorm.io/gorm v1.20.11
 	nhooyr.io/websocket v1.8.6
 )

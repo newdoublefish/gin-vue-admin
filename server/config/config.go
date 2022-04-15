@@ -21,6 +21,8 @@ type Server struct {
 	HuaWeiObs  HuaWeiObs  `mapstructure:"hua-wei-obs" json:"huaWeiObs" yaml:"hua-wei-obs"`
 	TencentCOS TencentCOS `mapstructure:"tencent-cos" json:"tencentCOS" yaml:"tencent-cos"`
 
+	MinioOSS   MinioOSS   `mapstructure:"minio-oss" json:"minioOSS" yaml:"minio-oss"`
+
 	Excel Excel `mapstructure:"excel" json:"excel" yaml:"excel"`
 	Timer Timer `mapstructure:"timer" json:"timer" yaml:"timer"`
 
