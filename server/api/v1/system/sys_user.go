@@ -426,3 +426,20 @@ func (b *BaseApi) GetUserAttendant(c *gin.Context) {
 		response.OkWithDetailed(gin.H{"attendant": attendant}, "获取成功", c)
 	}
 }
+
+// @Tags Attendant
+// @Summary 获取用户某日考勤时间
+// @Security ApiKeyAuth
+// @accept application/json
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /attendant/getUserAttendantLastSyncTime [get]
+func (b *BaseApi) GetUserAttendantLastSyncTime(c *gin.Context) {
+	var query systemReq.UserAttendantQuery
+	_ = c.ShouldBindJSON(&query)
+	if synTime, err := userService.GetUserAttendantLastSyncTime(); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败"+err.Error(), c)
+	} else {
+		response.OkWithDetailed(gin.H{"synTime": synTime}, "获取成功", c)
+	}
+}

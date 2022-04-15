@@ -1808,6 +1808,20 @@ paths:
       summary: 获取用户某日考勤时间
       tags:
       - Attendant
+  /attendant/getUserAttendantLastSyncTime:
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"获取成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户某日考勤时间
+      tags:
+      - Attendant
   /authority/copyAuthority:
     post:
       consumes:

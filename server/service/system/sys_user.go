@@ -557,14 +557,14 @@ func (userService *UserService) GetUserAttendant(query systemReq.UserAttendantQu
 		return nil, err
 	}
 
-	if sysUser.OriginType==nil ||  *sysUser.OriginType != utils2.OriginTypeAttendance{
+	if sysUser.OriginType == nil || *sysUser.OriginType != utils2.OriginTypeAttendance {
 		return nil, errors.New("用户来源非erp系统")
 	}
 
 	var records []attendant.HrAttendantRecord
 	db := global.GVA_ATTENDANT.Model(&attendant.HrAttendantRecord{})
 	err := db.Where("EmplID = ? and RecDate = ?", sysUser.OriginCode, query.Date).Find(&records).Error
-	if err!=nil{
+	if err != nil {
 		return nil, err
 	}
 	reLen := len(records)
@@ -572,14 +572,34 @@ func (userService *UserService) GetUserAttendant(query systemReq.UserAttendantQu
 		Code: query.Code,
 		Date: query.Date,
 	}
-	if reLen > 0{
+	if reLen > 0 {
 		userAttendant.ClockIn = fmt.Sprintf("%s %s", records[0].RecDate, records[0].RecTime)
-		if len(records) > 1{
+		if len(records) > 1 {
 
 			userAttendant.ClockOut = fmt.Sprintf("%s %s", records[reLen-1].RecDate, records[reLen-1].RecTime)
 		}
-	}else{
+	} else {
 		return nil, errors.New("无记录")
 	}
 	return &userAttendant, nil
 }
+
+func (userService *UserService) GetUserAttendantLastSyncTime() (string, error) {
+	var record attendant.HrAttendantRecord
+	err := global.GVA_ATTENDANT.Raw("select top 1 * FROM AtdRecord order by OperDate desc").Scan(&record).Error
+	if err != nil {
+		global.GVA_LOG.Error("GetUserAttendantLastSyncTime", zap.String("err", err.Error()))
+		return "", err
+	}
+	return record.OperDate, nil
+}
+
+//func (userService *UserService) GetUserAttendantLastSyncTime() (string, error){
+//	var record attendant.HrAttendantRecord
+//	err := global.GVA_ATTENDANT.Raw("select * FROM AtdRecord order by OperDate desc").Scan(&record).Error
+//	if err!=nil{
+//		global.GVA_LOG.Error("GetUserAttendantLastSyncTime", zap.String("err", err.Error()))
+//		return "", err
+//	}
+//	return record.OperDate, nil
+//}
