@@ -14,6 +14,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	utils2 "github.com/flipped-aurora/gin-vue-admin/server/utils/enums"
 	uuid "github.com/satori/go.uuid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"
@@ -476,8 +477,11 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 
 	}
 
+	employeeMap := make(map[string]string)
+
 	for _, emp := range Hes{
 		var user system.SysUser
+		employeeMap[emp.EmplID] = emp.EmplID
 		err = global.GVA_DB.Model(&system.SysUser{}).Where("origin_type = ? and origin_code = ?", utils2.OriginTypeAttendance, emp.EmplID).First(&user).Error
 		if err!=nil{
 			// 未找到,需要新建
@@ -491,10 +495,20 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 			user.CreatedAt = emp.EntryDate
 			user.NickName = emp.EmplName
 			user.Username = user.EmployeeID
+
+			// 默认正式工
+			status := utils2.StaffTypeRegular
+			user.StaffType = &status
+
+			sType := utils2.StaffStatusEmployed
+			user.StaffStatus = &sType
+
 			if emp.Sex == "false"{
 				user.Gender = 1
+				user.HeaderImg = "http://10.0.0.33:9000/users/man.png"
 			}else{
 				user.Gender = 2
+				user.HeaderImg = "http://10.0.0.33:9000/users/girl.png"
 			}
 
 			user.AuthorityId = "888"
@@ -506,7 +520,22 @@ func (userService *UserService) SyncUsersFromAttendantSystem(){
 
 			user.Authorities = authorities
 			err = global.GVA_DB.Create(&user).Error
-			break
+			global.GVA_LOG.Info("sync", zap.String("用户", user.NickName))
+		}
+	}
+
+	// 查找用户管理系统中的考勤系统中用户,
+	var userList []system.SysUser
+
+	err = global.GVA_DB.Model(&system.SysUser{}).Where("origin_type = 2").Find(&userList).Error
+	if err == nil {
+		for _, user := range userList {
+			// 如果不在考勤系统中，则更新为离岗
+			if _, ok := employeeMap["foo"]; !ok{
+				status := utils2.StaffStatusUnEmployed
+				user.StaffStatus = &status
+				global.GVA_DB.Updates(user)
+			}
 		}
 	}
 }
