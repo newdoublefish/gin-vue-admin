@@ -423,7 +423,7 @@ func (b *BaseApi) GetUserAttendant(c *gin.Context) {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败"+err.Error(), c)
 	} else {
-		response.OkWithDetailed(gin.H{"attendant": attendant}, "获取成功", c)
+		response.OkWithDetailed(attendant, "获取成功", c)
 	}
 }
 
