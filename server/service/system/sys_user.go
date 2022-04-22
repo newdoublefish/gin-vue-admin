@@ -18,6 +18,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"
+	"time"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -480,11 +481,11 @@ func (userService *UserService) SyncUsersFromAttendantSystem() {
 
 	}
 
-	employeeMap := make(map[string]string)
+	employeeMap := make(map[string]attendant.HrEmployee)
 
 	for _, emp := range Hes {
 		var user system.SysUser
-		employeeMap[emp.EmplID] = emp.EmplID
+		employeeMap[emp.EmplID] = emp
 		err = global.GVA_DB.Model(&system.SysUser{}).Where("origin_type = ? and origin_code = ?", utils2.OriginTypeAttendance, emp.EmplID).First(&user).Error
 		if err != nil {
 			// 未找到,需要新建
@@ -495,17 +496,19 @@ func (userService *UserService) SyncUsersFromAttendantSystem() {
 			user.OriginType = &t
 			user.OriginCode = emp.EmplID
 			user.EmployeeID = fmt.Sprintf("10000%s", strings.TrimSpace(emp.CardID))
-			user.CreatedAt = emp.EntryDate
+			if len(emp.EntryDate) > 0{
+				t, err := time.Parse("2006-01-02", emp.EntryDate)
+				if err == nil{
+					user.CreatedAt = t
+				}
+			}
 			user.NickName = emp.EmplName
 			user.Username = user.EmployeeID
-
 			// 默认正式工
 			status := utils2.StaffTypeRegular
 			user.StaffType = &status
-
 			sType := utils2.StaffStatusEmployed
 			user.StaffStatus = &sType
-
 			if emp.Sex == "false" {
 				user.Gender = 1
 				user.HeaderImg = "http://10.0.0.33:9000/users/man.png"
@@ -513,14 +516,11 @@ func (userService *UserService) SyncUsersFromAttendantSystem() {
 				user.Gender = 2
 				user.HeaderImg = "http://10.0.0.33:9000/users/girl.png"
 			}
-
 			user.AuthorityId = "888"
-
 			var authorities []system.SysAuthority
 			authorities = append(authorities, system.SysAuthority{
 				AuthorityId: user.AuthorityId,
 			})
-
 			user.Authorities = authorities
 			err = global.GVA_DB.Create(&user).Error
 			global.GVA_LOG.Info("sync", zap.String("用户", user.NickName))
@@ -534,10 +534,17 @@ func (userService *UserService) SyncUsersFromAttendantSystem() {
 	if err == nil {
 		for _, user := range userList {
 			// 如果不在考勤系统中，则更新为离岗
-			if _, ok := employeeMap["foo"]; !ok {
+			if emp, ok := employeeMap[user.OriginCode]; !ok {
 				status := utils2.StaffStatusUnEmployed
 				user.StaffStatus = &status
 				global.GVA_DB.Updates(user)
+			}else{
+				// 如果在的话看是否有离职日期
+				if len(emp.LeaveDate) > 0 {
+					status := utils2.StaffStatusUnEmployed
+					user.StaffStatus = &status
+					global.GVA_DB.Updates(user)
+				}
 			}
 		}
 	}
