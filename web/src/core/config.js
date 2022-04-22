@@ -3,9 +3,9 @@
  */
 
 const config = {
-  appName: 'Gin-Vue-Admin',
+  appName: '用户管理中心',
   appLogo: 'https://www.gin-vue-admin.com/img/logo.png',
-  showViteLogo: true
+  showViteLogo: false
 }
 
 export const viteLogo = (env) => {
