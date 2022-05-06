@@ -568,6 +568,12 @@ func (userService *UserService) GetUserAttendant(query systemReq.UserAttendantQu
 		return nil, errors.New("用户来源非erp系统")
 	}
 
+	// 判断考勤系统中是否有考勤记录
+	var record attendant.HrAttendantRecord
+	if err := global.GVA_ATTENDANT.Model(&attendant.HrAttendantRecord{}).Where("EmplID = ?", sysUser.OriginCode).First(&record).Error; err != nil {
+		return nil, err
+	}
+
 	var records []attendant.HrAttendantRecord
 	db := global.GVA_ATTENDANT.Model(&attendant.HrAttendantRecord{})
 	err := db.Where("EmplID = ? and RecDate = ?", sysUser.OriginCode, query.Date).Find(&records).Error

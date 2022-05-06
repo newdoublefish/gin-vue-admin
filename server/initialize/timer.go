@@ -28,8 +28,9 @@ func Timer() {
 	//	fmt.Println("execute ------------------")
 	//})
 	us := userService
+	us.SyncUsersFromAttendantSystem()
 	// 每日同步时间
-	global.GVA_Timer.AddTaskByFunc("sync", "0 0 12,18,22 * * ?", func() {
+	global.GVA_Timer.AddTaskByFunc("sync", "@daily", func() {
 		us.SyncUsersFromAttendantSystem()
 	})
 
