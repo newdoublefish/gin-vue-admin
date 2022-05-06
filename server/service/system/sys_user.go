@@ -550,6 +550,19 @@ func (userService *UserService) SyncUsersFromAttendantSystem() {
 	}
 }
 
+func (userService *UserService) GetHrAttendantRecord(tx *gorm.DB, originCode string, date string) (attendant.HrAttendantRecord, error) {
+	if tx == nil {
+		tx = global.GVA_ATTENDANT
+	}
+
+	var m attendant.HrAttendantRecord
+	err := tx.Raw("SELECT * FROM AtdRecord WHERE EmplID = ? and RecDate <= ?", originCode, date).Scan(&m).Error
+	if len(m.EmplID) <= 0  {
+		err = errors.New(fmt.Sprintf("获取考勤记录失败:%s, %s", originCode, date))
+	}
+	return m, err
+}
+
 func (userService *UserService) GetUserAttendant(query systemReq.UserAttendantQuery) (*response.UserAttendantResponse, error) {
 	if query.Date == "" {
 		return nil, errors.New("日期不能为空")
@@ -569,8 +582,8 @@ func (userService *UserService) GetUserAttendant(query systemReq.UserAttendantQu
 	}
 
 	// 判断考勤系统中是否有考勤记录
-	var record attendant.HrAttendantRecord
-	if err := global.GVA_ATTENDANT.Model(&attendant.HrAttendantRecord{}).Where("EmplID = ? and RecDate <= ?", sysUser.OriginCode, query.Date).First(&record).Error; err != nil {
+	//var record attendant.HrAttendantRecord
+	if _, err := userService.GetHrAttendantRecord(nil, sysUser.OriginCode, query.Date); err != nil {
 		return nil, err
 	}
 
